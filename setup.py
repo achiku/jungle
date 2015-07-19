@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from setuptools import find_packages, setup
+from setuptools import setup
 
 setup(
     name='jangle',
-    packages=find_packages(),
+    py_modules='jangle',
     install_requires=open('requirements.txt').read().splitlines(),
     entry_points={
         "console_scripts": [
-            "jangle = djangle.__main__:main",
+            "jangle = jangle:cli",
         ],
     },
 )
