@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import click
 import boto3
@@ -22,7 +21,7 @@ def ec2():
 
 
 @ec2.command(help='List EC2 instances')
-@click.option('--name', default='*bastion*', help='EC2 tag name')
+@click.option('--name', default='*', help='EC2 tag name')
 def ls(name):
     ec2 = boto3.resource('ec2')
     instances = ec2.instances.filter(
@@ -36,7 +35,7 @@ def ls(name):
             instance_name, i.state['Name'], i.id, i.private_ip_address, i.public_ip_address))
 
 
-@ec2.command(help='Start EC2 instances')
+@ec2.command(help='Start EC2 instance')
 @click.option('--id', 'instance_id',
               required=True, help='EC2 instance id')
 def up(instance_id):
@@ -44,7 +43,7 @@ def up(instance_id):
     client.start_instances(InstanceIds=[instance_id])
 
 
-@ec2.command(help='Stop EC2 instances')
+@ec2.command(help='Stop EC2 instance')
 @click.option('--id', 'instance_id',
               required=True, help='EC2 instance id')
 def down(instance_id):
