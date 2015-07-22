@@ -21,7 +21,7 @@ def ec2():
 
 
 @ec2.command(help='List EC2 instances')
-@click.option('--name', default='*', help='EC2 tag name')
+@click.argument('name', default='*')
 def ls(name):
     ec2 = boto3.resource('ec2')
     instances = ec2.instances.filter(
@@ -36,7 +36,7 @@ def ls(name):
 
 
 @ec2.command(help='Start EC2 instance')
-@click.option('--id', 'instance_id',
+@click.option('--instance-id', '-i', 'instance_id',
               required=True, help='EC2 instance id')
 def up(instance_id):
     client = boto3.client('ec2')
@@ -44,7 +44,7 @@ def up(instance_id):
 
 
 @ec2.command(help='Stop EC2 instance')
-@click.option('--id', 'instance_id',
+@click.option('--instance-id', '-i', 'instance_id',
               required=True, help='EC2 instance id')
 def down(instance_id):
     client = boto3.client('ec2')
