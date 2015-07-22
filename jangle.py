@@ -49,7 +49,3 @@ def up(instance_id):
 def down(instance_id):
     client = boto3.client('ec2')
     client.stop_instances(InstanceIds=[instance_id])
-
-
-if __name__ == '__main__':
-    cli()
