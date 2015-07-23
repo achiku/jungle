@@ -16,7 +16,7 @@ setup(
         "Programming Language :: Python :: 3.4",
         "License :: OSI Approved :: MIT License"
     ],
-    version='0.0.4',
+    version='0.0.5',
     py_modules=['jangle'],
     include_package_data=True,
     install_requires=[
