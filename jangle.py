@@ -49,3 +49,22 @@ def up(instance_id):
 def down(instance_id):
     client = boto3.client('ec2')
     client.stop_instances(InstanceIds=[instance_id])
+
+
+@cli.group()
+def elb():
+    pass
+
+
+@elb.command(help='List ELB instances')
+@click.argument('name', default='*')
+def ls(name):
+    client = boto3.client('elb')
+    if name == '*':
+        inst = client.describe_load_balancers()
+    else:
+        inst = client.describe_load_balancers(
+            LoadBalancerNames=[name]
+        )
+    for i in inst['LoadBalancerDescriptions']:
+        click.echo(i['LoadBalancerName'])
