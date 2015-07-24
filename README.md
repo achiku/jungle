@@ -33,6 +33,13 @@ Stopping instance
 jangle ec2 down -i i-xxxxxx
 ```
 
+Listing all ELB instances
+
+```
+jangle elb ls
+```
+
+
 ## Configuration
 
 You can create the credential file yourself. By default, its location is at ```~/.aws/credentials```
