@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import click
 import boto3
+from botocore.exceptions import ClientError
 
 
 def get_tag_value(x, key):
@@ -60,11 +61,14 @@ def elb():
 @click.argument('name', default='*')
 def ls(name):
     client = boto3.client('elb')
+    inst = {'LoadBalancerDescriptions': []}
     if name == '*':
         inst = client.describe_load_balancers()
     else:
-        inst = client.describe_load_balancers(
-            LoadBalancerNames=[name]
-        )
+        try:
+            inst = client.describe_load_balancers(LoadBalancerNames=[name])
+        except ClientError:
+            pass
+
     for i in inst['LoadBalancerDescriptions']:
         click.echo(i['LoadBalancerName'])
