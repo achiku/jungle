@@ -39,6 +39,12 @@ Listing all ELB instances
 jangle elb ls
 ```
 
+Listing a ELB instance
+
+```
+jangle elb ls production-blog-elb
+```
+
 
 ## Configuration
 
