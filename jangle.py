@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import click
 import boto3
+import click
 from botocore.exceptions import ClientError
 
 
