@@ -36,7 +36,7 @@ build:
     #     python_location: /usr/bin/python3.2
 
     # A step that executes `pip install` command.
-    - pip-install
+    # - pip-install
 
     # # This pip-install clears the local wheel cache
     # - pip-install:
@@ -49,3 +49,5 @@ build:
         code: |
           echo "python version $(python --version) running"
           echo "pip version $(pip --version) running"
+          pip install -r requirements/common.txt
+          pip install -r requirements/development.txt
