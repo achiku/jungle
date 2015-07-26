@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 
 
 def get_tag_value(x, key):
+    """Get a value from tag"""
     result = [y['Value'] for y in x if y['Key'] == key]
     if len(result) == 0:
         return None
@@ -13,17 +14,20 @@ def get_tag_value(x, key):
 
 @click.group()
 def cli():
+    """Main CLI group"""
     pass
 
 
 @cli.group()
 def ec2():
+    """EC2 CLI group"""
     pass
 
 
 @ec2.command(help='List EC2 instances')
 @click.argument('name', default='*')
 def ls(name):
+    """List EC2 instances"""
     ec2 = boto3.resource('ec2')
     instances = ec2.instances.filter(
         Filters=[
@@ -40,6 +44,7 @@ def ls(name):
 @click.option('--instance-id', '-i', 'instance_id',
               required=True, help='EC2 instance id')
 def up(instance_id):
+    """Start EC2 instance"""
     client = boto3.client('ec2')
     client.start_instances(InstanceIds=[instance_id])
 
@@ -48,18 +53,21 @@ def up(instance_id):
 @click.option('--instance-id', '-i', 'instance_id',
               required=True, help='EC2 instance id')
 def down(instance_id):
+    """Stop EC2 instance"""
     client = boto3.client('ec2')
     client.stop_instances(InstanceIds=[instance_id])
 
 
 @cli.group()
 def elb():
+    """ELB CLI group"""
     pass
 
 
 @elb.command(help='List ELB instances')
 @click.argument('name', default='*')
 def ls(name):
+    """List ELB instances"""
     client = boto3.client('elb')
     inst = {'LoadBalancerDescriptions': []}
     if name == '*':
