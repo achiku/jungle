@@ -51,3 +51,4 @@ build:
           echo "pip version $(pip --version) running"
           pip install -r requirements/common.txt
           pip install -r requirements/development.txt
+          py.test -v jangle/ tests/
