@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""AWS operations by cli should be simpler"""
+"""AWS operations by cli should be simpler."""
 from setuptools import find_packages, setup
-
 
 setup(
     name='jangle',
