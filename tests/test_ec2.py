@@ -1,15 +1,31 @@
 # -*- coding: utf-8 -*-
-import click
+import pytest
 from click.testing import CliRunner
 
+from jangle import cli
 
-def test_hello_world():
-    @click.command()
-    @click.argument('name')
-    def hello(name):
-        click.echo('Hello %s!' % name)
 
-    runner = CliRunner()
-    result = runner.invoke(hello, ['Peter'])
+@pytest.fixture
+def runner():
+    return CliRunner()
+
+
+def test_cli(runner):
+    result = runner.invoke(cli.cli)
     assert result.exit_code == 0
-    assert result.output == 'Hello Peter!\n'
+    assert not result.exception
+    assert result.output.strip() == 'Hello, world.'
+
+
+def test_cli_with_option(runner):
+    result = runner.invoke(cli.cli, ['--as-cowboy'])
+    assert not result.exception
+    assert result.exit_code == 0
+    assert result.output.strip() == 'Howdy, world.'
+
+
+def test_cli_with_arg(runner):
+    result = runner.invoke(cli.cli, ['Akira'])
+    assert result.exit_code == 0
+    assert not result.exception
+    assert result.output.strip() == 'Hello, Akira.'
