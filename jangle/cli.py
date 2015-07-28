@@ -66,7 +66,8 @@ def elb():
 
 @elb.command(help='List ELB instances')
 @click.argument('name', default='*')
-def ls(name):
+@click.option('--list-instances', '-l', 'list_instances', is_flag=True, help='List attached EC2 instances')
+def ls(name, list_instances):
     """List ELB instances"""
     client = boto3.client('elb')
     inst = {'LoadBalancerDescriptions': []}
@@ -80,3 +81,10 @@ def ls(name):
 
     for i in inst['LoadBalancerDescriptions']:
         click.echo(i['LoadBalancerName'])
+        if list_instances:
+            for ec2 in i['Instances']:
+                health = client.describe_instance_health(
+                    LoadBalancerName=name,
+                    Instances=[ec2]
+                )
+                click.echo('{}\t{}'.format(ec2['InstanceId'], health['InstanceStates'][0]['State']))
