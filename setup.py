@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='jangle',
-    version='0.0.8',
+    version='0.0.9',
     url='https://github.com/achiku/jangle',
     license='BSD',
     author='Akira Chiku',
@@ -39,10 +39,10 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: MacOS',
         'Operating System :: Unix',
-        'Operating System :: Windows',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3',
+        # 'Operating System :: Windows',
+        # 'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 )
