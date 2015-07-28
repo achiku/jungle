@@ -47,6 +47,12 @@ Listing a ELB instance
 jangle elb ls production-blog-elb
 ```
 
+Listing ELB attached EC2 instances
+
+```
+jangle elb ls -l production-blog-elb
+```
+
 
 ## Configuration
 

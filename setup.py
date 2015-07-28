@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='jangle',
-    version='0.0.9',
+    version='0.0.10',
     url='https://github.com/achiku/jangle',
     license='BSD',
     author='Akira Chiku',
