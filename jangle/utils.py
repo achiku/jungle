@@ -39,11 +39,11 @@ except ImportError:
 
 
 def agent_auth(transport, username):
-    """
-    Attempt to authenticate to the given transport using any of the private
-    keys available from an SSH agent.
-    """
+    """Authentication using SSH agent
 
+    Attempt to authenticate to the given transport using
+    any of the private keys available from an SSH agent.
+    """
     agent = paramiko.Agent()
     agent_keys = agent.get_keys()
     if len(agent_keys) == 0:
@@ -59,33 +59,17 @@ def agent_auth(transport, username):
             print('... nope.')
 
 
-def manual_auth(t, username, hostname):
-    default_auth = 'p'
-    auth = input('Auth by (p)assword, (r)sa key, or (d)ss key? [%s] ' % default_auth)
-    if len(auth) == 0:
-        auth = default_auth
-
-    if auth == 'r':
-        default_path = os.path.join(os.environ['HOME'], '.ssh', 'id_rsa')
-        path = input('RSA key [%s]: ' % default_path)
-        if len(path) == 0:
-            path = default_path
+def manual_auth(t, username, hostname, keyfile_path):
+    """Authentication using manual input"""
+    if keyfile_path:
         try:
-            key = paramiko.RSAKey.from_private_key_file(path)
+            if not os.path.exists(keyfile_path):
+                print("{} doesn't exist".format(keyfile_path))
+                sys.exit(2)
+            key = paramiko.RSAKey.from_private_key_file(keyfile_path)
         except paramiko.PasswordRequiredException:
             password = getpass.getpass('RSA key password: ')
-            key = paramiko.RSAKey.from_private_key_file(path, password)
-        t.auth_publickey(username, key)
-    elif auth == 'd':
-        default_path = os.path.join(os.environ['HOME'], '.ssh', 'id_dsa')
-        path = input('DSS key [%s]: ' % default_path)
-        if len(path) == 0:
-            path = default_path
-        try:
-            key = paramiko.DSSKey.from_private_key_file(path)
-        except paramiko.PasswordRequiredException:
-            password = getpass.getpass('DSS key password: ')
-            key = paramiko.DSSKey.from_private_key_file(path, password)
+            key = paramiko.RSAKey.from_private_key_file(keyfile_path, password)
         t.auth_publickey(username, key)
     else:
         pw = getpass.getpass('Password for %s@%s: ' % (username, hostname))
@@ -93,6 +77,7 @@ def manual_auth(t, username, hostname):
 
 
 def interactive_shell(chan):
+    """Start interacive shell"""
     if has_termios:
         posix_shell(chan)
     else:
@@ -100,6 +85,7 @@ def interactive_shell(chan):
 
 
 def posix_shell(chan):
+    """For *nix"""
     import select
     oldtty = termios.tcgetattr(sys.stdin)
     try:
@@ -131,6 +117,7 @@ def posix_shell(chan):
 
 # thanks to Mike Looijmans for this code
 def windows_shell(chan):
+    """For Windows"""
     import threading
 
     sys.stdout.write("Line-buffered terminal emulation. Press F6 or ^Z to send EOF.\r\n\r\n")

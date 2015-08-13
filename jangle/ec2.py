@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import getpass
 import os
 import socket
 import sys
@@ -63,14 +62,16 @@ def down(instance_id):
 @cli.command(help='SSH to EC2 instance')
 @click.option('--instance-id', '-i', 'instance_id',
               required=True, help='EC2 instance id')
-def ssh(instance_id):
+@click.option('--username', '-u', 'username',
+              default='ubuntu', help='Login username')
+@click.option('--key-file', '-k', 'keyfile_path',
+              default=None, help='SSH Key file path', type=click.Path())
+def ssh(instance_id, username, keyfile_path):
     """SSH to EC2 instance"""
     client = boto3.client('ec2')
     instance = client.describe_instances(InstanceIds=[instance_id])
-    click.echo(instance)
 
     # huge thanks to https://github.com/paramiko/paramiko/tree/master/demos
-    username = 'ubuntu'
     hostname = instance['Reservations'][0]['Instances'][0]['PublicIpAddress']
     port = 22
 
@@ -112,16 +113,9 @@ def ssh(instance_id):
         else:
             click.echo('*** Host key OK.')
 
-        # get username
-        if username == '':
-            default_username = getpass.getuser()
-            username = input('Username [%s]: ' % default_username)
-            if len(username) == 0:
-                username = default_username
-
         agent_auth(t, username)
         if not t.is_authenticated():
-            manual_auth(t, username, hostname)
+            manual_auth(t, username, hostname, keyfile_path)
         if not t.is_authenticated():
             click.echo('*** Authentication failed. :(')
             t.close()
