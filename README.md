@@ -2,7 +2,7 @@
 
 AWS operations by cli should be simpler
 
-[![wercker status](https://app.wercker.com/status/cf2e66af176033a61634da5c77b627ef/m "wercker status")](https://app.wercker.com/project/bykey/cf2e66af176033a61634da5c77b627ef)
+[![Build Status](https://travis-ci.org/achiku/jangle.svg)](https://travis-ci.org/achiku/jangle)
 
 
 ## Description
