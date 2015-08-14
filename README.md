@@ -3,6 +3,7 @@
 AWS operations by cli should be simpler
 
 [![Build Status](https://travis-ci.org/achiku/jangle.svg)](https://travis-ci.org/achiku/jangle)
+[![Dependency Status](https://gemnasium.com/achiku/jangle.svg)](https://gemnasium.com/achiku/jangle)
 
 
 ## Description
