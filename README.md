@@ -2,6 +2,8 @@
 
 AWS operations by cli should be simpler
 
+[![PyPI version](https://img.shields.io/pypi/v/jangle.svg)](https://pypi.python.org/pypi/jangle)
+[![PyPI downloads](https://img.shields.io/pypi/dm/jangle.svg)](https://pypi.python.org/pypi/jangle)
 [![Build Status](https://travis-ci.org/achiku/jangle.svg)](https://travis-ci.org/achiku/jangle)
 [![Dependency Status](https://gemnasium.com/achiku/jangle.svg)](https://gemnasium.com/achiku/jangle)
 
