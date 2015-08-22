@@ -6,7 +6,7 @@ setup(
     name='jungle',
     version='0.0.13',
     url='https://github.com/achiku/jungle',
-    license='BSD',
+    license='MIT',
     author='Akira Chiku',
     author_email='akira.chiku@gmail.com',
     description='AWS operations by cli should be simpler',
