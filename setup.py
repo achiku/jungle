@@ -3,9 +3,9 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='jangle',
+    name='jungle',
     version='0.0.12',
-    url='https://github.com/achiku/jangle',
+    url='https://github.com/achiku/jungle',
     license='BSD',
     author='Akira Chiku',
     author_email='akira.chiku@gmail.com',
@@ -22,7 +22,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'jangle = jangle.cli:cli',
+            'jungle = jungle.cli:cli',
         ],
     },
     classifiers=[
