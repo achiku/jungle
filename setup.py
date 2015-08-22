@@ -18,7 +18,6 @@ setup(
     install_requires=[
         'boto3==1.1.0',
         'click==4.1',
-        'paramiko==1.15.2',
     ],
     entry_points={
         'console_scripts': [
