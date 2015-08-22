@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='jungle',
-    version='0.0.12',
+    version='0.0.13',
     url='https://github.com/achiku/jungle',
     license='BSD',
     author='Akira Chiku',
@@ -18,7 +18,6 @@ setup(
     install_requires=[
         'boto3==1.1.0',
         'click==4.1',
-        'paramiko==1.15.2',
     ],
     entry_points={
         'console_scripts': [
