@@ -2,7 +2,7 @@
 import click
 
 
-class JangleCLI(click.MultiCommand):
+class JungleCLI(click.MultiCommand):
 
     """Jangle CLI main class"""
 
@@ -12,11 +12,11 @@ class JangleCLI(click.MultiCommand):
 
     def get_command(self, ctx, name):
         """get command"""
-        mod = __import__('jangle.' + name, None, None, ['cli'])
+        mod = __import__('jungle.' + name, None, None, ['cli'])
         return mod.cli
 
 
-cli = JangleCLI(help='aws operation cli')
+cli = JungleCLI(help='aws operation cli')
 
 
 if __name__ == '__main__':

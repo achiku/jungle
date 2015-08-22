@@ -2,7 +2,7 @@
 import pytest
 from click.testing import CliRunner
 
-from jangle import cli
+from jungle import cli
 
 
 @pytest.fixture
