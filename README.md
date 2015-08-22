@@ -10,9 +10,17 @@ AWS operations by cli should be simpler
 
 ## Description
 
-jungle makes AWS operations simpler and intuitive from your terminal.
+jungle makes AWS operations from terminal simpler and more intuitive.
+
+
+## Why created
+
+awscli is by far the most comprehensive CLI tool manupulating various AWS services, and I really like its flexible options and up-to-date release cycle. However, day-to-day AWS operations from my terminal don't need that much flexibility and that many services. Rather, I wanted just small set of UNIX-like commands which are easy to use and remember.
 
 ## Usage
+
+
+### EC2
 
 Listing all EC2 instances
 
@@ -21,6 +29,12 @@ jungle ec2 ls
 ```
 
 Filtering EC2 instances by Name tag
+
+```
+jungle ec2 ls blog-web-server-01
+```
+
+Filtering EC2 instances by Name tag using wildcard
 
 ```
 jungle ec2 ls *web*
@@ -37,6 +51,27 @@ Stopping instance
 ```
 jungle ec2 down -i i-xxxxxx
 ```
+
+SSH login to instance specified by instance id
+
+```
+jungle ec2 ssh -i i-xxxxxx --key-file /path/to/key.pem
+```
+
+SSH login to instance specified by Tag Name
+
+```
+jungle ec2 ssh -n blog-web-server-01 --key-file /path/to/key.pem
+```
+
+SSH login to instance specified by Tag Name with wildcard (you'll be prompted to choose which server to log in)
+
+```
+jungle ec2 ssh -n blog-web-server-* --key-file /path/to/key.pem
+```
+
+
+### ELB
 
 Listing all ELB instances
 
