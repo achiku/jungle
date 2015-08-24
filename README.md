@@ -17,6 +17,12 @@ jungle makes AWS operations from terminal simpler and more intuitive.
 
 awscli is by far the most comprehensive CLI tool manipulating various AWS services, and I really like its flexible options and up-to-date release cycle. However, day-to-day AWS operations from my terminal don't need that much flexibility and that many services. Rather, I wanted just small set of UNIX-like commands which are easy to use and remember.
 
+## Installation
+
+```
+pip install jungle
+```
+
 ## Usage
 
 
