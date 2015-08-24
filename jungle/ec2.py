@@ -61,7 +61,8 @@ def down(instance_id):
               default='ubuntu', help='Login username')
 @click.option('--key-file', '-k', 'keyfile_path',
               required=True, help='SSH Key file path', type=click.Path())
-def ssh(instance_id, instance_name, username, keyfile_path):
+@click.option('--port', '-p', 'port', help='SSH port', default=22)
+def ssh(instance_id, instance_name, username, keyfile_path, port):
     """SSH to EC2 instance"""
     if instance_id is None and instance_name is None:
         click.echo("One of --instance-id/-i or --instance-name/-n has to be specified.", err=True)
@@ -97,5 +98,5 @@ def ssh(instance_id, instance_name, username, keyfile_path):
             click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
             sys.exit(2)
 
-    cmd = 'ssh {}@{} -i {}'.format(username, hostname, keyfile_path)
+    cmd = 'ssh {}@{} -i {} -p {}'.format(username, hostname, keyfile_path, port)
     subprocess.call(cmd, shell=True)
