@@ -61,7 +61,7 @@ jungle ec2 down -i i-xxxxxx
 SSH login to instance specified by instance id
 
 ```
-jungle ec2 ssh -i i-xxxxxx --key-file /path/to/key.pem
+jungle ec2 ssh -i i-xxxxxx --key-file /path/to/key.pem --port 1234
 ```
 
 SSH login to instance specified by Tag Name
