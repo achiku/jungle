@@ -1,7 +1,5 @@
 # jungle
 
-AWS operations by cli should be simpler
-
 [![PyPI version](https://img.shields.io/pypi/v/jungle.svg)](https://pypi.python.org/pypi/jungle)
 [![PyPI downloads](https://img.shields.io/pypi/dm/jungle.svg)](https://pypi.python.org/pypi/jungle)
 [![Build Status](https://travis-ci.org/achiku/jungle.svg)](https://travis-ci.org/achiku/jungle)

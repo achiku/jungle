@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='jungle',
-    version='0.0.15',
+    version='0.1.0',
     url='https://github.com/achiku/jungle',
     license='MIT',
     author='Akira Chiku',
