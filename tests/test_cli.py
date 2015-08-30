@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
-import pytest
-from click.testing import CliRunner
-
 from jungle import cli
-
-
-@pytest.fixture
-def runner():
-    """Define test runner"""
-    return CliRunner()
 
 
 def test_cli(runner):

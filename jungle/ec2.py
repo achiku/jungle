@@ -26,8 +26,11 @@ def cli():
 def ls(name):
     """List EC2 instances"""
     ec2 = boto3.resource('ec2')
-    instances = ec2.instances.filter(
-        Filters=[{'Name': 'tag:Name', 'Values': [name]}])
+    if name == '*':
+        instances = ec2.instances.filter()
+    else:
+        instances = ec2.instances.filter(
+            Filters=[{'Name': 'tag:Name', 'Values': [name]}])
     for i in instances:
         tag_name = get_tag_value(i.tags, 'Name')
         click.echo('{}\t{}\t{}\t{}\t{}'.format(
