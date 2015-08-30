@@ -7,6 +7,8 @@ python:
   - "nightly"
 # command to install dependencies
 before_install:
+  - mkdir $HOME/.aws
+  - cp ./tests/config $HOME/.aws
   - sudo apt-get update -qq
   - sudo apt-get install -y libxml2-dev
 install: 
