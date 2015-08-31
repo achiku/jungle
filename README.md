@@ -41,7 +41,7 @@ jungle ec2 ls blog-web-server-01
 Filtering EC2 instances by Name tag using wildcard
 
 ```
-jungle ec2 ls *web*
+jungle ec2 ls '*web*'
 ```
 
 Starting instance
@@ -71,7 +71,7 @@ jungle ec2 ssh -n blog-web-server-01 --key-file /path/to/key.pem
 SSH login to instance specified by Tag Name with wildcard (you'll be prompted to choose which server to log in)
 
 ```
-jungle ec2 ssh -n blog-web-server-* --key-file /path/to/key.pem
+jungle ec2 ssh -n 'blog-web-server-*' --key-file /path/to/key.pem
 ```
 
 
