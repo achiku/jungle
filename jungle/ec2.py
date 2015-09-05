@@ -23,7 +23,10 @@ def format_output(instances, flag):
 
 
 def _get_max_name_len(instances):
-    return max([len(get_tag_value(i.tags, 'Name')) for i in instances])
+    # FIXME: ec2.instanceCollection doesn't have __len__
+    for i in instances:
+        return max([len(get_tag_value(i.tags, 'Name')) for i in instances])
+    return 0
 
 
 def get_tag_value(x, key):
