@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='jungle',
-    version='0.1.2',
+    version='0.1.3',
     url='https://github.com/achiku/jungle',
     license='MIT',
     author='Akira Chiku',
@@ -16,7 +16,7 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'boto3==1.1.1',
+        'boto3==1.1.3',
         'click==5.1',
     ],
     entry_points={
