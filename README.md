@@ -32,6 +32,12 @@ Listing all EC2 instances
 jungle ec2 ls
 ```
 
+Listing all EC2 instances in formatted format
+
+```
+jungle ec2 ls -l
+```
+
 Filtering EC2 instances by Name tag
 
 ```
