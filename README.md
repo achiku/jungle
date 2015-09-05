@@ -26,13 +26,13 @@ pip install jungle
 
 ### EC2
 
-Listing all EC2 instances
+Listing all EC2 instances (each attribute is separated by a tab)
 
 ```
 jungle ec2 ls
 ```
 
-Listing all EC2 instances in formatted format
+Listing all EC2 instances in formatted output(each attribute is separated with space and is aligned)
 
 ```
 jungle ec2 ls -l
