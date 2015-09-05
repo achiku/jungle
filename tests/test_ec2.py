@@ -35,6 +35,18 @@ def test_ec2_ls(runner, ec2, arg, expected_server_names):
     assert expected_server_names == [x for x in expected_server_names if x in result.output]
 
 
+@pytest.mark.parametrize('opt, arg, expected_server_names', [
+    ('-l', '*',  ['server00', 'server01']),
+    ('-l', 'server01', ['server01']),
+    ('-l', 'fake-server', []),
+])
+def test_ec2_ls_formatted(runner, ec2, opt, arg, expected_server_names):
+    """jungle ec2 ls test"""
+    result = runner.invoke(cli.cli, ['ec2', 'ls', opt, arg])
+    assert result.exit_code == 0
+    assert expected_server_names == [x for x in expected_server_names if x in result.output]
+
+
 @pytest.mark.parametrize('tags, key, expected', [
     ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'Name', 'server01'),
     ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'env', 'prod'),
