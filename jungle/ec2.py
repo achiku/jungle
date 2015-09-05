@@ -7,14 +7,23 @@ import botocore
 import click
 
 
-def format_output(i, flag):
+def format_output(instances, flag):
     """return formatted string for instance"""
-    tag_name = get_tag_value(i.tags, 'Name')
+    out = []
+    line_format = '{}\t{}\t{}\t{}\t{}'
+    name_len = _get_max_name_len(instances) + 3
     if flag:
-        return '{0:<40}{1:<10}{2:<13}{3:<13}{4:<10}'.format(
-            tag_name, i.state['Name'], i.id, i.private_ip_address, str(i.public_ip_address))
-    return '{}\t{}\t{}\t{}\t{}'.format(
-        tag_name, i.state['Name'], i.id, i.private_ip_address, i.public_ip_address)
+        line_format = '{0:<' + str(name_len) + '}{1:<10}{2:<13}{3:<16}{4:<16}'
+
+    for i in instances:
+        tag_name = get_tag_value(i.tags, 'Name')
+        out.append(line_format.format(
+            tag_name, i.state['Name'], i.id, i.private_ip_address, str(i.public_ip_address)))
+    return out
+
+
+def _get_max_name_len(instances):
+    return max([len(get_tag_value(i.tags, 'Name')) for i in instances])
 
 
 def get_tag_value(x, key):
@@ -44,8 +53,8 @@ def ls(name, is_formatted_output):
     else:
         instances = ec2.instances.filter(
             Filters=[{'Name': 'tag:Name', 'Values': [name]}])
-    for i in instances:
-        click.echo(format_output(i, is_formatted_output))
+    out = format_output(instances, is_formatted_output)
+    click.echo('\n'.join(out))
 
 
 @cli.command(help='Start EC2 instance')
