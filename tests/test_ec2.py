@@ -13,6 +13,7 @@ def ec2():
     mock.start()
 
     ec2 = boto3.resource('ec2')
+    ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
     servers = ec2.create_instances(ImageId='ami-xxxxx', MinCount=2, MaxCount=2)
     for i, s in enumerate(servers):
         ec2.create_tags(
@@ -32,3 +33,16 @@ def test_ec2_ls(runner, ec2, arg, expected_server_names):
     result = runner.invoke(cli.cli, ['ec2', 'ls', arg])
     assert result.exit_code == 0
     assert expected_server_names == [x for x in expected_server_names if x in result.output]
+
+
+@pytest.mark.parametrize('tags, key, expected', [
+    ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'Name', 'server01'),
+    ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'env', 'prod'),
+    ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'dummy', ''),
+    ([], 'dummy', ''),
+    (None, 'dummy', ''),
+])
+def test_get_tag_value(tags, key, expected):
+    """get_tag_value utility test"""
+    from jungle.ec2 import get_tag_value
+    assert get_tag_value(tags, key) == expected
