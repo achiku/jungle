@@ -119,3 +119,7 @@ You may also want to set a default region. This can be done in the configuration
 [default]
 region = us-east-1
 ```
+
+More detailed configurations can be found in the boto3 documentation.
+
+[Boto3 Doc - Configuration](http://boto3.readthedocs.org/en/latest/guide/configuration.html#guide-configuration)
