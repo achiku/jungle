@@ -65,8 +65,13 @@ def ls(name, is_formatted_output):
               required=True, help='EC2 instance id')
 def up(instance_id):
     """Start EC2 instance"""
-    client = boto3.client('ec2')
-    client.start_instances(InstanceIds=[instance_id])
+    ec2 = boto3.resource('ec2')
+    try:
+        instance = ec2.Instance(instance_id)
+        instance.start()
+    except botocore.exceptions.ClientError as e:
+        click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
+        sys.exit(2)
 
 
 @cli.command(help='Stop EC2 instance')
@@ -74,8 +79,13 @@ def up(instance_id):
               required=True, help='EC2 instance id')
 def down(instance_id):
     """Stop EC2 instance"""
-    client = boto3.client('ec2')
-    client.stop_instances(InstanceIds=[instance_id])
+    ec2 = boto3.resource('ec2')
+    try:
+        instance = ec2.Instance(instance_id)
+        instance.stop()
+    except botocore.exceptions.ClientError as e:
+        click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
+        sys.exit(2)
 
 
 @cli.command(help='SSH to EC2 instance')

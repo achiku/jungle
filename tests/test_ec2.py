@@ -13,14 +13,38 @@ def ec2():
     mock.start()
 
     ec2 = boto3.resource('ec2')
-    ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
+    server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
     servers = ec2.create_instances(ImageId='ami-xxxxx', MinCount=2, MaxCount=2)
     for i, s in enumerate(servers):
         ec2.create_tags(
             Resources=[s.id],
             Tags=[{'Key': 'Name', 'Value': 'server{:0>2d}'.format(i)}])
-    yield ec2
+    yield {'ec2': ec2, 'servers': servers, 'server': server[0]}
     mock.stop()
+
+
+def test_ec2_up(runner, ec2):
+    """jungle ec2 up test"""
+    result = runner.invoke(cli.cli, ['ec2', 'up', '-i', ec2['server'].id])
+    assert result.exit_code == 0
+
+
+def test_ec2_up_no_instance(runner, ec2):
+    """jungle ec2 up test"""
+    result = runner.invoke(cli.cli, ['ec2', 'up', '-i', 'dummy'])
+    assert result.exit_code == 2
+
+
+def test_ec2_down(runner, ec2):
+    """jungle ec2 up test"""
+    result = runner.invoke(cli.cli, ['ec2', 'down', '-i', ec2['server'].id])
+    assert result.exit_code == 0
+
+
+def test_ec2_down_no_instance(runner, ec2):
+    """jungle ec2 up test"""
+    result = runner.invoke(cli.cli, ['ec2', 'down', '-i', 'dummy'])
+    assert result.exit_code == 2
 
 
 @pytest.mark.parametrize('arg, expected_server_names', [
