@@ -80,6 +80,12 @@ SSH login to instance specified by Tag Name with wildcard (you'll be prompted to
 jungle ec2 ssh -n 'blog-web-server-*' --key-file /path/to/key.pem
 ```
 
+SSH login to instance specified by Tag Name through gateway instance
+
+```
+jungle ec2 ssh -n blog-web-server-01 --key-file /path/to/key.pem -g i-xxxxxx
+```
+
 
 ### ELB
 

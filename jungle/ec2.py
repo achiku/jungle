@@ -98,7 +98,8 @@ def down(instance_id):
 @click.option('--key-file', '-k', 'keyfile_path',
               required=True, help='SSH Key file path', type=click.Path())
 @click.option('--port', '-p', 'port', help='SSH port', default=22)
-def ssh(instance_id, instance_name, username, keyfile_path, port):
+@click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
+def ssh(instance_id, instance_name, username, keyfile_path, port, gateway_instance_id):
     """SSH to EC2 instance"""
     if instance_id is None and instance_name is None:
         click.echo("One of --instance-id/-i or --instance-name/-n has to be specified.", err=True)
@@ -134,5 +135,13 @@ def ssh(instance_id, instance_name, username, keyfile_path, port):
             click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
             sys.exit(2)
 
-    cmd = 'ssh {}@{} -i {} -p {}'.format(username, hostname, keyfile_path, port)
+    # TODO: need to refactor and make it testable
+    if gateway_instance_id is not None:
+        gateway_instance = ec2.Instance(gateway_instance_id)
+        gateway_public_ip = gateway_instance.public_ip_address
+        hostname = list_instances[selected_idx].private_ip_address
+        cmd = 'ssh -tt ubuntu@{} -i {} -p {} ssh {}@{}'.format(
+            gateway_public_ip, keyfile_path, port, username, hostname)
+    else:
+        cmd = 'ssh {}@{} -i {} -p {}'.format(username, hostname, keyfile_path, port)
     subprocess.call(cmd, shell=True)
