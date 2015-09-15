@@ -35,7 +35,7 @@ setup(
         # 'Development Status :: 7 - Inactive',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX',
         'Operating System :: MacOS',
         'Operating System :: Unix',
