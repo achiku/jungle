@@ -1,26 +1,7 @@
 # -*- coding: utf-8 -*-
-import boto3
 import pytest
-from moto import mock_ec2
 
 from jungle import cli
-
-
-@pytest.yield_fixture(scope='function')
-def ec2():
-    """EC2 mock service"""
-    mock = mock_ec2()
-    mock.start()
-
-    ec2 = boto3.resource('ec2')
-    server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
-    servers = ec2.create_instances(ImageId='ami-xxxxx', MinCount=2, MaxCount=2)
-    for i, s in enumerate(servers):
-        ec2.create_tags(
-            Resources=[s.id],
-            Tags=[{'Key': 'Name', 'Value': 'server{:0>2d}'.format(i)}])
-    yield {'ec2': ec2, 'servers': servers, 'server': server[0]}
-    mock.stop()
 
 
 def _get_sorted_server_names_from_output(output, separator='\t'):
@@ -57,7 +38,7 @@ def test_ec2_down_no_instance(runner, ec2):
 
 
 @pytest.mark.parametrize('arg, expected_server_names', [
-    ('*',  ['', 'server00', 'server01']),
+    ('*',  ['', 'server00', 'server01', 'ssh_server']),
     ('server01', ['server01']),
     ('fake-server', []),
 ])
@@ -69,7 +50,7 @@ def test_ec2_ls(runner, ec2, arg, expected_server_names):
 
 
 @pytest.mark.parametrize('opt, arg, expected_server_names', [
-    ('-l', '*',  ['', 'server00', 'server01']),
+    ('-l', '*',  ['', 'server00', 'server01', 'ssh_server']),
     ('-l', 'server01', ['server01']),
     ('-l', 'fake-server', []),
 ])
@@ -91,3 +72,15 @@ def test_get_tag_value(tags, key, expected):
     """get_tag_value utility test"""
     from jungle.ec2 import get_tag_value
     assert get_tag_value(tags, key) == expected
+
+
+@pytest.mark.parametrize('instance_name, key_file, expected', [
+    ('ssh_server', '~/path/to/key.pem', 'ssh ubuntu@{} -i ~/path/to/key.pem -p 22'),
+])
+def test_create_ssh_command(runner, ec2, instance_name, key_file, expected):
+    """create_ssh_command test"""
+    result = runner.invoke(
+        cli.cli, ['ec2', 'ssh', '-n', instance_name, '-k', key_file, '--dry-run'], input='0')
+    expected_output = expected.format(ec2['ssh_server'].public_ip_address)
+    ssh_command_output = result.output.split('\n')[3]
+    assert ssh_command_output == expected_output
