@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import click
 
+from jungle import __version__
+
 
 class JungleCLI(click.MultiCommand):
 
@@ -16,7 +18,7 @@ class JungleCLI(click.MultiCommand):
         return mod.cli
 
 
-cli = JungleCLI(help='aws operation cli')
+cli = JungleCLI(help="aws operation cli (v{})".format(__version__))
 
 
 if __name__ == '__main__':
