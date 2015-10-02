@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
 """AWS operations by cli should be simpler."""
+import re
+
 from setuptools import find_packages, setup
+
+
+# Taken from "kennethreitz/requests": http://git.io/vcuY8
+version = ''
+with open('jungle/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
+if not version:
+    raise RuntimeError('Cannot find version information')
 
 setup(
     name='jungle',
-    version='0.1.7',
+    version=version,
     url='https://github.com/achiku/jungle',
     license='MIT',
     author='Akira Chiku',
