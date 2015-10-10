@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """AWS operations by cli should be simpler."""
+import os
 import re
 
 from setuptools import find_packages, setup
 
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
 # Taken from "kennethreitz/requests": http://git.io/vcuY8
 version = ''
 with open('jungle/__init__.py', 'r') as fd:
@@ -13,6 +15,12 @@ with open('jungle/__init__.py', 'r') as fd:
 
 if not version:
     raise RuntimeError('Cannot find version information')
+
+with open(os.path.join(base_dir, 'requirements/common.txt')) as f:
+    requirements = [r.strip() for r in f.readlines()]
+
+with open(os.path.join(base_dir, 'requirements/test.txt')) as f:
+    test_requirements = [r.strip() for r in f.readlines()]
 
 setup(
     name='jungle',
@@ -27,10 +35,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='any',
-    install_requires=[
-        'boto3==1.1.3',
-        'click==5.1',
-    ],
+    install_requires=requirements,
     entry_points={
         'console_scripts': [
             'jungle = jungle.cli:cli',
@@ -53,8 +58,13 @@ setup(
         'Operating System :: Unix',
         # 'Operating System :: Windows',
         # 'Programming Language :: Python',
+        "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ]
+    ],
+    test_suite='tests',
+    tests_require=test_requirements
 )
