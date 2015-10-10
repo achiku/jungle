@@ -2,13 +2,35 @@
 import boto3
 import pytest
 from click.testing import CliRunner
-from moto import mock_ec2
+from moto import mock_ec2, mock_elb
 
 
 @pytest.fixture
 def runner():
     """Define test runner"""
     return CliRunner()
+
+
+@pytest.yield_fixture(scope='function')
+def elb():
+    """ELB mock service"""
+    mock = mock_elb()
+    mock.start()
+
+    client = boto3.client('elb')
+    elb = client.create_load_balancer(
+        LoadBalancerName='loadbalancer-01',
+        Listeners=[
+            {
+                'Protocol': 'http',
+                'LoadBalancerPort': 80,
+                'InstanceProtocol': 'http',
+                'InstancePort': 80,
+            }
+        ]
+    )
+    yield elb
+    mock.stop()
 
 
 @pytest.yield_fixture(scope='function')
