@@ -4,6 +4,7 @@
 [![PyPI downloads](https://img.shields.io/pypi/dm/jungle.svg)](https://pypi.python.org/pypi/jungle)
 [![Build Status](https://travis-ci.org/achiku/jungle.svg)](https://travis-ci.org/achiku/jungle)
 [![Dependency Status](https://gemnasium.com/achiku/jungle.svg)](https://gemnasium.com/achiku/jungle)
+[![codecov.io](http://codecov.io/github/achiku/jungle/coverage.svg?branch=master)](http://codecov.io/github/achiku/jungle?branch=master)
 
 
 ## Description
