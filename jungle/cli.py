@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import click
 
-from jungle import __version__
+from . import __version__
 
 
 class JungleCLI(click.MultiCommand):

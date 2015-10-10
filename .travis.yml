@@ -4,18 +4,21 @@ python:
   - "3.4"
   - "3.5.0b3"
   - "3.5-dev"
-  - "nightly"
+sudo: false
 # command to install dependencies
 before_install:
   - mkdir $HOME/.aws
   - cp ./tests/config $HOME/.aws
-  - pip install codecov
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libxml2-dev
+cache:
+  directories:
+    - $HOME/.cache/pip
 install: 
   - pip install pip --upgrade
   - pip install -r requirements/development.txt
+  - pip install codecov
+  - pip install -e .
 # command to run tests
-script: tox
+script: py.test -v tests jungle
+# for coverage
 after_success:
   - codecov
