@@ -18,6 +18,7 @@ install:
   - pip install pip --upgrade
   - pip install -r requirements/development.txt
   - pip install codecov
+  - pip install -e .
 # command to run tests
 script: py.test -v tests jungle
 # for coverage
