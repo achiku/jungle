@@ -18,18 +18,21 @@ def elb():
     mock.start()
 
     client = boto3.client('elb')
-    elb = client.create_load_balancer(
-        LoadBalancerName='loadbalancer-01',
-        Listeners=[
-            {
-                'Protocol': 'http',
-                'LoadBalancerPort': 80,
-                'InstanceProtocol': 'http',
-                'InstancePort': 80,
-            }
-        ]
-    )
-    yield elb
+    lbs = []
+    for i in range(2):
+        lb = client.create_load_balancer(
+            LoadBalancerName='loadbalancer-01',
+            Listeners=[
+                {
+                    'Protocol': 'http',
+                    'LoadBalancerPort': 80,
+                    'InstanceProtocol': 'http',
+                    'InstancePort': 80,
+                }
+            ]
+        )
+        lbs.append(lb)
+    yield {'lbs': lbs}
     mock.stop()
 
 
