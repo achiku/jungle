@@ -38,7 +38,7 @@ def test_ec2_down_no_instance(runner, ec2):
 
 
 @pytest.mark.parametrize('arg, expected_server_names', [
-    ('*',  ['', 'server00', 'server01', 'ssh_server']),
+    ('*',  ['', 'server00', 'server01', 'gateway_server', 'ssh_server']),
     ('server01', ['server01']),
     ('fake-server', []),
 ])
@@ -46,11 +46,11 @@ def test_ec2_ls(runner, ec2, arg, expected_server_names):
     """jungle ec2 ls test"""
     result = runner.invoke(cli.cli, ['ec2', 'ls', arg])
     assert result.exit_code == 0
-    assert expected_server_names == _get_sorted_server_names_from_output(result.output)
+    assert sorted(expected_server_names) == _get_sorted_server_names_from_output(result.output)
 
 
 @pytest.mark.parametrize('opt, arg, expected_server_names', [
-    ('-l', '*',  ['', 'server00', 'server01', 'ssh_server']),
+    ('-l', '*',  ['', 'server00', 'server01', 'gateway_server', 'ssh_server']),
     ('-l', 'server01', ['server01']),
     ('-l', 'fake-server', []),
 ])
@@ -58,7 +58,7 @@ def test_ec2_ls_formatted(runner, ec2, opt, arg, expected_server_names):
     """jungle ec2 ls test"""
     result = runner.invoke(cli.cli, ['ec2', 'ls', opt, arg])
     assert result.exit_code == 0
-    assert expected_server_names == _get_sorted_server_names_from_output(result.output, separator=' ')
+    assert sorted(expected_server_names) == _get_sorted_server_names_from_output(result.output, separator=' ')
 
 
 @pytest.mark.parametrize('tags, key, expected', [

@@ -49,8 +49,13 @@ def ec2():
             Resources=[s.id],
             Tags=[{'Key': 'Name', 'Value': 'ssh_server'}])
 
-    server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
     gateway_server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
+    for s in gateway_server:
+        ec2.create_tags(
+            Resources=[s.id],
+            Tags=[{'Key': 'Name', 'Value': 'gateway_server'}])
+
+    server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
     servers = ec2.create_instances(ImageId='ami-xxxxx', MinCount=2, MaxCount=2)
     for i, s in enumerate(servers):
         ec2.create_tags(
