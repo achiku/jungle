@@ -6,6 +6,7 @@ show_missing = False
 ignore_errors = True
 omit =
     .tox/*
+    setup.py
 exclude_lines =
     pragma: no cover
     def __repr__
