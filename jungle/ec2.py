@@ -107,8 +107,10 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, gat
                 click.echo('[{}]: {}\t{}\t{}\t{}'.format(
                     idx, i.id, i.private_ip_address, i.state['Name'], tag_name))
             selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
+            # TODO: add validation for if selected_idx exceeds length of target_instances
             click.echo("{} is selected.".format(selected_idx))
-            hostname = target_instances[selected_idx].public_ip_address
+            instance = target_instances[selected_idx]
+            hostname = instance.public_ip_address
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
             sys.exit(2)
@@ -116,7 +118,7 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, gat
     if gateway_instance_id is not None:
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
-        hostname = target_instances[selected_idx].private_ip_address
+        hostname = instance.private_ip_address
         cmd = 'ssh -tt ubuntu@{} -i {} -p {} ssh {}@{}'.format(
             gateway_public_ip, key_file, port, username, hostname)
     else:
