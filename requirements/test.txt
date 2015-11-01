@@ -5,6 +5,7 @@ pep257==0.5.0
 py==1.4.30
 pytest==2.8.2
 pytest-cov==2.2.0
+pytest-mock==0.8.1
 pytest-isort==0.1.0
 pytest-pep8==1.0.6
 moto==0.4.12
