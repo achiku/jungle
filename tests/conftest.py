@@ -50,6 +50,7 @@ def ec2():
             Tags=[{'Key': 'Name', 'Value': 'ssh_server'}])
 
     server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
+    gateway_server = ec2.create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1)
     servers = ec2.create_instances(ImageId='ami-xxxxx', MinCount=2, MaxCount=2)
     for i, s in enumerate(servers):
         ec2.create_tags(
@@ -60,7 +61,8 @@ def ec2():
         ec2=ec2,
         servers=servers,
         server=server[0],
-        ssh_server=ssh_server[0],
+        ssh_target_server=ssh_server[0],
+        gateway_target_server=gateway_server[0],
     )
 
     mock.stop()

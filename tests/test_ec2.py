@@ -74,13 +74,24 @@ def test_get_tag_value(tags, key, expected):
     assert get_tag_value(tags, key) == expected
 
 
-@pytest.mark.parametrize('instance_name, key_file, expected', [
-    ('ssh_server', '~/path/to/key.pem', 'ssh ubuntu@{} -i ~/path/to/key.pem -p 22'),
+@pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, port, use_gateway, expected', [
+    ('ssh_server', False, 'ubuntu', 'key.pem', 22, False, 'ssh ubuntu@{} -i key.pem -p 22'),
+    (None, True, 'ubuntu', 'key.pem', 22, False, 'ssh ubuntu@{} -i key.pem -p 22'),
+    ('ssh_server', False, 'ubuntu', 'key.pem', 22, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+    (None, True, 'ubuntu', 'key.pem', 22, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
 ])
-def test_create_ssh_command(runner, ec2, instance_name, key_file, expected):
+def test_create_ssh_command(mocker, ec2, inst_name, use_inst_id, username, keyfile, port, use_gateway, expected):
     """create_ssh_command test"""
-    result = runner.invoke(
-        cli.cli, ['ec2', 'ssh', '-n', instance_name, '-k', key_file, '--dry-run'], input='0')
-    expected_output = expected.format(ec2['ssh_server'].public_ip_address)
-    ssh_command_output = result.output.split('\n')[3]
-    assert ssh_command_output == expected_output
+    from jungle.ec2 import create_ssh_command
+    mocker.patch('click.prompt', new=lambda msg, type, default: 0)
+    ssh_server_instance_id = ec2['ssh_target_server'].id if use_inst_id else None
+    gateway_server_instance_id = ec2['gateway_target_server'].id if use_gateway else None
+    ssh_command = create_ssh_command(
+        ssh_server_instance_id, inst_name, username, keyfile, port, gateway_server_instance_id)
+    if use_gateway:
+        expected_output = expected.format(
+            ec2['gateway_target_server'].public_ip_address,
+            ec2['ssh_target_server'].private_ip_address)
+    else:
+        expected_output = expected.format(ec2['ssh_target_server'].public_ip_address)
+    assert ssh_command == expected_output
