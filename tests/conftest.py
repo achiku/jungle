@@ -2,13 +2,41 @@
 import boto3
 import pytest
 from click.testing import CliRunner
-from moto import mock_ec2, mock_elb
+from moto import mock_ec2, mock_elb, mock_emr
 
 
 @pytest.fixture
 def runner():
     """Define test runner"""
     return CliRunner()
+
+
+@pytest.yield_fixture(scope='function')
+def emr():
+    """EMR mock service"""
+    # TODO: implement fixture after moto is ready
+    # https://github.com/spulec/moto/pull/456
+    boto3.set_stream_logger()
+    mock = mock_emr()
+    mock.start()
+
+    client = boto3.client('emr')
+    clusters = []
+    for i in range(2):
+        cluster = client.run_job_flow(
+            Name='cluster{}'.format(i),
+            Instances={
+                'MasterInstanceType': 'c3.xlarge',
+                'SlaveInstanceType': 'c3.xlarge',
+                'InstanceCount': 3,
+                'Placement': {'AvailabilityZone': 'ap-northeast-1a'},
+                'KeepJobFlowAliveWhenNoSteps': True,
+            },
+            VisibleToAllUsers=True,
+        )
+        clusters.append(cluster)
+    yield {'clusters': clusters}
+    mock.stop()
 
 
 @pytest.yield_fixture(scope='function')
