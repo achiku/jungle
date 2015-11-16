@@ -109,7 +109,7 @@ jungle elb ls -l production-blog-elb
 ```
 
 
-### ELB
+### EMR
 
 ```
 jungle emr ls
