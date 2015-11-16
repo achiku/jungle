@@ -109,6 +109,17 @@ jungle elb ls -l production-blog-elb
 ```
 
 
+### ELB
+
+```
+jungle emr ls
+```
+
+```
+jungle emr ssh -k /path/to/key.pem -i j-xxxxxxx
+```
+
+
 ## Configuration
 
 You can create the credential file yourself. By default, its location is at ```~/.aws/credentials```
