@@ -3,6 +3,7 @@ import subprocess
 
 import boto3
 import click
+from botocore.exceptions import ClientError
 
 
 @click.group()
@@ -42,9 +43,13 @@ def ssh(cluster_id, key_file):
 def rm(cluster_id):
     """Terminate a EMR cluster"""
     client = boto3.client('emr')
-    result = client.describe_cluster(ClusterId=cluster_id)
-    target_dns = result['Cluster']['MasterPublicDnsName']
-    flag = click.prompt(
-        "Are you sure to terminate {}: {}? [y/Y]".format(cluster_id, target_dns), type=str, default='n')
-    if flag.lower() == 'y':
-        result = client.terminate_job_flows(JobFlowIds=[cluster_id])
+    try:
+        result = client.describe_cluster(ClusterId=cluster_id)
+        target_dns = result['Cluster']['MasterPublicDnsName']
+        flag = click.prompt(
+            "Are you sure you want to terminate {}: {}? [y/Y]".format(
+                cluster_id, target_dns), type=str, default='n')
+        if flag.lower() == 'y':
+            result = client.terminate_job_flows(JobFlowIds=[cluster_id])
+    except ClientError as e:
+        click.echo(e, err=True)
