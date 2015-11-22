@@ -22,8 +22,8 @@ def ls(name, list_instances):
     else:
         try:
             inst = client.describe_load_balancers(LoadBalancerNames=[name])
-        except ClientError:
-            pass
+        except ClientError as e:
+            click.echo(e, err=True)
 
     for i in inst['LoadBalancerDescriptions']:
         click.echo(i['LoadBalancerName'])
