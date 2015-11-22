@@ -23,11 +23,11 @@ def ls(name):
         click.echo("{}\t{}\t{}".format(cluster['Id'], cluster['Name'], cluster['Status']['State']))
 
 
-@cli.command(help='List EMR clusters')
+@cli.command(help='SSH to EMR master node')
 @click.option('--cluster-id', '-i', required=True, help='EMR cluster id')
 @click.option('--key-file', '-k', required=True, help='SSH Key file path', type=click.Path())
 def ssh(cluster_id, key_file):
-    """List EMR instances"""
+    """SSH login to EMR master node"""
     client = boto3.client('emr')
     result = client.describe_cluster(ClusterId=cluster_id)
     target_dns = result['Cluster']['MasterPublicDnsName']
@@ -35,3 +35,16 @@ def ssh(cluster_id, key_file):
     cmd = 'ssh {ssh_options}  -i {key_file} hadoop@{target_dns}'.format(
         ssh_options=ssh_options, key_file=key_file, target_dns=target_dns)
     subprocess.call(cmd, shell=True)
+
+
+@cli.command(help='Terminate a EMR cluster')
+@click.option('--cluster-id', '-i', required=True, help='EMR cluster id')
+def rm(cluster_id):
+    """Terminate a EMR cluster"""
+    client = boto3.client('emr')
+    result = client.describe_cluster(ClusterId=cluster_id)
+    target_dns = result['Cluster']['MasterPublicDnsName']
+    flag = click.prompt(
+        "Are you sure to terminate {}: {}? [y/Y]".format(cluster_id, target_dns), type=str, default='n')
+    if flag.lower() == 'y':
+        result = client.terminate_job_flows(JobFlowIds=[cluster_id])
