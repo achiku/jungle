@@ -21,7 +21,7 @@ def ls(name):
         ClusterStates=['RUNNING', 'STARTING', 'BOOTSTRAPPING', 'WAITING']
     )
     for cluster in results['Clusters']:
-        click.echo("{}\t{}\t{}".format(cluster['Id'], cluster['Name'], cluster['Status']['State']))
+        click.echo("{0}\t{1}\t{2}".format(cluster['Id'], cluster['Name'], cluster['Status']['State']))
 
 
 @cli.command(help='SSH to EMR master node')
@@ -47,7 +47,7 @@ def rm(cluster_id):
         result = client.describe_cluster(ClusterId=cluster_id)
         target_dns = result['Cluster']['MasterPublicDnsName']
         flag = click.prompt(
-            "Are you sure you want to terminate {}: {}? [y/Y]".format(
+            "Are you sure you want to terminate {0}: {1}? [y/Y]".format(
                 cluster_id, target_dns), type=str, default='n')
         if flag.lower() == 'y':
             result = client.terminate_job_flows(JobFlowIds=[cluster_id])
