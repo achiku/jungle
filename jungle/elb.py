@@ -33,4 +33,4 @@ def ls(name, list_instances):
                     LoadBalancerName=name,
                     Instances=[ec2]
                 )
-                click.echo('{}\t{}'.format(ec2['InstanceId'], health['InstanceStates'][0]['State']))
+                click.echo('{0}\t{1}'.format(ec2['InstanceId'], health['InstanceStates'][0]['State']))

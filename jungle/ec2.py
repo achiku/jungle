@@ -10,7 +10,7 @@ import click
 def format_output(instances, flag):
     """return formatted string for instance"""
     out = []
-    line_format = '{}\t{}\t{}\t{}\t{}'
+    line_format = '{0}\t{1}\t{2}\t{3}\t{4}'
     name_len = _get_max_name_len(instances) + 3
     if flag:
         line_format = '{0:<' + str(name_len) + '}{1:<10}{2:<13}{3:<16}{4:<16}'
@@ -23,6 +23,7 @@ def format_output(instances, flag):
 
 
 def _get_max_name_len(instances):
+    """get max length of Tag:Name"""
     # FIXME: ec2.instanceCollection doesn't have __len__
     for i in instances:
         return max([len(get_tag_value(i.tags, 'Name')) for i in instances])
@@ -34,9 +35,9 @@ def get_tag_value(x, key):
     if x is None:
         return ''
     result = [y['Value'] for y in x if y['Key'] == key]
-    if len(result) == 0:
-        return ''
-    return result[0]
+    if result:
+        return result[0]
+    return ''
 
 
 @click.group()
@@ -69,7 +70,7 @@ def up(instance_id):
         instance = ec2.Instance(instance_id)
         instance.start()
     except botocore.exceptions.ClientError as e:
-        click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
+        click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
         sys.exit(2)
 
 
@@ -82,7 +83,7 @@ def down(instance_id):
         instance = ec2.Instance(instance_id)
         instance.stop()
     except botocore.exceptions.ClientError as e:
-        click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
+        click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
         sys.exit(2)
 
 
@@ -94,7 +95,7 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, gat
             instance = ec2.Instance(instance_id)
             hostname = instance.public_ip_address
         except botocore.exceptions.ClientError as e:
-            click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
+            click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
     elif instance_name is not None:
         try:
@@ -104,25 +105,25 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, gat
             for idx, i in enumerate(instances):
                 target_instances.append(i)
                 tag_name = get_tag_value(i.tags, 'Name')
-                click.echo('[{}]: {}\t{}\t{}\t{}'.format(
+                click.echo('[{0}]: {1}\t{2}\t{3}\t{4}'.format(
                     idx, i.id, i.private_ip_address, i.state['Name'], tag_name))
             selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
             # TODO: add validation for if selected_idx exceeds length of target_instances
-            click.echo("{} is selected.".format(selected_idx))
+            click.echo("{0} is selected.".format(selected_idx))
             instance = target_instances[selected_idx]
             hostname = instance.public_ip_address
         except botocore.exceptions.ClientError as e:
-            click.echo("Invalid instance ID {} ({})".format(instance_id, e), err=True)
+            click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
     # TODO: need to refactor and make it testable
     if gateway_instance_id is not None:
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
-        cmd = 'ssh -tt ubuntu@{} -i {} -p {} ssh {}@{}'.format(
+        cmd = 'ssh -tt ubuntu@{0} -i {1} -p {2} ssh {3}@{4}'.format(
             gateway_public_ip, key_file, port, username, hostname)
     else:
-        cmd = 'ssh {}@{} -i {} -p {}'.format(username, hostname, key_file, port)
+        cmd = 'ssh {0}@{1} -i {2} -p {3}'.format(username, hostname, key_file, port)
     return cmd
 
 
