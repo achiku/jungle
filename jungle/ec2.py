@@ -111,7 +111,11 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, gat
             # TODO: add validation for if selected_idx exceeds length of target_instances
             click.echo("{0} is selected.".format(selected_idx))
             instance = target_instances[selected_idx]
-            hostname = instance.public_ip_address
+            if instance.public_ip_address is not None:
+              hostname = instance.public_ip_address
+            else:
+              click.echo("Public IP address not set.  Attempting to use the private IP address.")
+              hostname = instance.private_ip_address
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
