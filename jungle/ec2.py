@@ -13,7 +13,7 @@ def format_output(instances, flag):
     line_format = '{0}\t{1}\t{2}\t{3}\t{4}'
     name_len = _get_max_name_len(instances) + 3
     if flag:
-        line_format = '{0:<' + str(name_len) + '}{1:<10}{2:<13}{3:<16}{4:<16}'
+        line_format = '{0:<' + str(name_len) + '}{1:<14}{2:<13}{3:<16}{4:<16}'
 
     for i in instances:
         tag_name = get_tag_value(i.tags, 'Name')
