@@ -105,7 +105,7 @@ ec2 instance reports a key name of FooBar, jungle will look for a key name of
 `~/.ssh/FooBar.pem`
 
 The search path for keys defaults to `~/.ssh/` but can be overridden with
-`--key-path`
+`--key-dir'
 
 
 ### ELB
