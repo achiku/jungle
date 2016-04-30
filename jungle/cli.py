@@ -14,11 +14,14 @@ class JungleCLI(click.MultiCommand):
 
     def get_command(self, ctx, name):
         """get command"""
-        mod = __import__('jungle.' + name, None, None, ['cli'])
-        return mod.cli
+        try:
+            mod = __import__('jungle.' + name, None, None, ['cli'])
+            return mod.cli
+        except ImportError:
+            pass
 
 
-cli = JungleCLI(help="aws operation cli (v{})".format(__version__))
+cli = JungleCLI(help="aws operation cli (v{0})".format(__version__))
 
 
 if __name__ == '__main__':
