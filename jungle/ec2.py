@@ -13,7 +13,7 @@ def format_output(instances, flag):
     line_format = '{0}\t{1}\t{2}\t{3}\t{4}'
     name_len = _get_max_name_len(instances) + 3
     if flag:
-        line_format = '{0:<' + str(name_len) + '}{1:<14}{2:<13}{3:<16}{4:<16}'
+        line_format = '{0:<' + str(name_len) + '}{1:<16}{2:<21}{3:<16}{4:<16}'
 
     for i in instances:
         tag_name = get_tag_value(i.tags, 'Name')
@@ -87,7 +87,7 @@ def down(instance_id):
         sys.exit(2)
 
 
-def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, port, gateway_instance_id):
+def create_ssh_command(instance_id, instance_name, username, key_file, port, gateway_instance_id):
     """Create SSH Login command string"""
     ec2 = boto3.resource('ec2')
     if instance_id is not None:
@@ -99,20 +99,22 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
             sys.exit(2)
     elif instance_name is not None:
         try:
-            condition = {'Name': 'tag:Name', 'Values': [instance_name]}
-            instances = ec2.instances.filter(Filters=[condition])
+            conditions = [
+                {'Name': 'tag:Name', 'Values': [instance_name]},
+                {'Name': 'instance-state-name', 'Values': ['running']},
+            ]
+            instances = ec2.instances.filter(Filters=conditions)
             target_instances = []
             for idx, i in enumerate(instances):
                 target_instances.append(i)
                 tag_name = get_tag_value(i.tags, 'Name')
                 click.echo('[{0}]: {1}\t{2}\t{3}\t{4}\t{5}'.format(
                     idx, i.id, i.private_ip_address, i.state['Name'], tag_name, i.key_name))
-                # Some key_name munging is required here to make it an actual key_file
-                # if key_file isn't defined, use the one reported from the boto call
-                if key_file is None:
-                    key_file = "{0}/{1}.pem".format(key_dir, i.key_name)
             selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
             # TODO: add validation for if selected_idx exceeds length of target_instances
+            if len(target_instances) - 1 < selected_idx or selected_idx < 0:
+                click.echo("selected number [{0}] is invalid".format(selected_idx), err=True)
+                sys.exit(2)
             click.echo("{0} is selected.".format(selected_idx))
             instance = target_instances[selected_idx]
             if instance.public_ip_address is not None:
@@ -124,14 +126,18 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
     # TODO: need to refactor and make it testable
+    if key_file is None:
+        key_file_option = ''
+    else:
+        key_file_option = ' -i {0}'.format(key_file)
     if gateway_instance_id is not None:
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
-        cmd = 'ssh -tt ubuntu@{0} -i {1} -p {2} ssh {3}@{4}'.format(
-            gateway_public_ip, key_file, port, username, hostname)
+        cmd = 'ssh -tt ubuntu@{0}{1} -p {2} ssh {3}@{4}'.format(
+            gateway_public_ip, key_file_option, port, username, hostname)
     else:
-        cmd = 'ssh {0}@{1} -i {2} -p {3}'.format(username, hostname, key_file, port)
+        cmd = 'ssh {0}@{1}{2} -p {3}'.format(username, hostname, key_file_option, port)
     return cmd
 
 
@@ -139,12 +145,11 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
 @click.option('--instance-id', '-i', default=None, help='EC2 instance id')
 @click.option('--instance-name', '-n', default=None, help='EC2 instance Name Tag')
 @click.option('--username', '-u', default='ubuntu', help='Login username')
-@click.option('--key-file', '-k', default=None, help='SSH Key file path', type=click.Path())
-@click.option('--key-dir', '-K', default='~/.ssh', help='Path to key files')
+@click.option('--key-file', '-k', help='SSH Key file path', type=click.Path())
 @click.option('--port', '-p', help='SSH port', default=22)
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')
-def ssh(instance_id, instance_name, username, key_file, key_dir, port, gateway_instance_id, dry_run):
+def ssh(instance_id, instance_name, username, key_file, port, gateway_instance_id, dry_run):
     """SSH to EC2 instance"""
     if instance_id is None and instance_name is None:
         click.echo(
@@ -157,7 +162,7 @@ def ssh(instance_id, instance_name, username, key_file, key_dir, port, gateway_i
             "can't to be specified at the same time.", err=True)
         sys.exit(2)
     cmd = create_ssh_command(
-        instance_id, instance_name, username, key_file, key_dir, port, gateway_instance_id)
+        instance_id, instance_name, username, key_file, port, gateway_instance_id)
     if not dry_run:
         subprocess.call(cmd, shell=True)
     else:
