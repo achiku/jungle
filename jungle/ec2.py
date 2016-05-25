@@ -124,14 +124,18 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
     # TODO: need to refactor and make it testable
+    if key_file is None:
+        key_file_option = ''
+    else:
+        key_file_option = ' -i {0}'.format(key_file)
     if gateway_instance_id is not None:
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
-        cmd = 'ssh -tt ubuntu@{0} -i {1} -p {2} ssh {3}@{4}'.format(
-            gateway_public_ip, key_file, port, username, hostname)
+        cmd = 'ssh -tt ubuntu@{0}{1} -p {2} ssh {3}@{4}'.format(
+            gateway_public_ip, key_file_option, port, username, hostname)
     else:
-        cmd = 'ssh {0}@{1} -i {2} -p {3}'.format(username, hostname, key_file, port)
+        cmd = 'ssh {0}@{1}{2} -p {3}'.format(username, hostname, key_file_option, port)
     return cmd
 
 
@@ -139,8 +143,8 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
 @click.option('--instance-id', '-i', default=None, help='EC2 instance id')
 @click.option('--instance-name', '-n', default=None, help='EC2 instance Name Tag')
 @click.option('--username', '-u', default='ubuntu', help='Login username')
-@click.option('--key-file', '-k', default=None, help='SSH Key file path', type=click.Path())
 @click.option('--key-dir', '-K', default='~/.ssh', help='Path to key files')
+@click.option('--key-file', '-k', help='SSH Key file path', type=click.Path())
 @click.option('--port', '-p', help='SSH port', default=22)
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')

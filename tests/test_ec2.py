@@ -75,13 +75,15 @@ def test_get_tag_value(tags, key, expected):
 
 
 @pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, keydir, port, use_gateway, expected', [
-    ('ssh_server', False, 'ubuntu', 'key.pem', "", 22, False, 'ssh ubuntu@{} -i key.pem -p 22'),
-    (None, True, 'ubuntu', 'key.pem', "", 22, False, 'ssh ubuntu@{} -i key.pem -p 22'),
-    ('ssh_server', False, 'ubuntu', 'key.pem', "", 22, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
-    (None, True, 'ubuntu', 'key.pem', "", 22, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+    ('ssh_server', False, 'ubuntu', 'key.pem', None, 22, False, 'ssh ubuntu@{} -i key.pem -p 22'),
+    ('ssh_server', False, 'ubuntu', None, None, 22, False, 'ssh ubuntu@{} -p 22'),
+    (None, True, 'ubuntu', 'key.pem', None, 22, False, 'ssh ubuntu@{} -i key.pem -p 22'),
+    ('ssh_server', False, 'ubuntu', 'key.pem', None, 22, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+    (None, True, 'ubuntu', 'key.pem', None, 22, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+    (None, True, 'ubuntu', None, None, 22, True, 'ssh -tt ubuntu@{} -p 22 ssh ubuntu@{}'),
 ])
-def test_create_ssh_command(mocker, ec2, inst_name, use_inst_id, username,
-                            keyfile, keydir, port, use_gateway, expected):
+def test_create_ssh_command(
+        mocker, ec2, inst_name, use_inst_id, username, keyfile, keydir, port, use_gateway, expected):
     """create_ssh_command test"""
     from jungle.ec2 import create_ssh_command
     mocker.patch('click.prompt', new=lambda msg, type, default: 0)
