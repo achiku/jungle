@@ -99,8 +99,11 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
             sys.exit(2)
     elif instance_name is not None:
         try:
-            condition = {'Name': 'tag:Name', 'Values': [instance_name]}
-            instances = ec2.instances.filter(Filters=[condition])
+            conditions = [
+                {'Name': 'tag:Name', 'Values': [instance_name]},
+                {'Name': 'instance-state-name', 'Values': ['running']},
+            ]
+            instances = ec2.instances.filter(Filters=conditions)
             target_instances = []
             for idx, i in enumerate(instances):
                 target_instances.append(i)
@@ -113,6 +116,9 @@ def create_ssh_command(instance_id, instance_name, username, key_file, key_dir, 
                     key_file = "{0}/{1}.pem".format(key_dir, i.key_name)
             selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
             # TODO: add validation for if selected_idx exceeds length of target_instances
+            if len(target_instances) - 1 < selected_idx or selected_idx < 0:
+                click.echo("selected number [{0}] is invalid".format(selected_idx), err=True)
+                sys.exit(2)
             click.echo("{0} is selected.".format(selected_idx))
             instance = target_instances[selected_idx]
             if instance.public_ip_address is not None:
