@@ -1,7 +1,7 @@
 # jungle
 
 [![PyPI version](https://img.shields.io/pypi/v/jungle.svg)](https://pypi.python.org/pypi/jungle)
-[![PyPI downloads](https://img.shields.io/pypi/dm/jungle.svg)](https://pypi.python.org/pypi/jungle)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/achiku/jungle/master/LICENSE)
 [![Build Status](https://travis-ci.org/achiku/jungle.svg)](https://travis-ci.org/achiku/jungle)
 [![Requirements Status](https://requires.io/github/achiku/jungle/requirements.svg?branch=master)](https://requires.io/github/achiku/jungle/requirements/?branch=master)
 [![codecov.io](http://codecov.io/github/achiku/jungle/coverage.svg?branch=master)](http://codecov.io/github/achiku/jungle?branch=master)
@@ -27,6 +27,8 @@ pip install jungle
 
 
 ### EC2
+
+I would highly recommend to use `ssh-agent` to manage your ssh keys and pass phrases. If you `ssh-add` your keys, `ssh-agent` automatically select appropriate key when you try to login to a box. This makes it much easier to use `jungle ec2 ssh`, or `ssh` command in general, since you don't have to specify `--key-file /path/to/key.pem` for each EC2 instance.
 
 Listing all EC2 instances (each attribute is separated by a tab)
 
@@ -124,6 +126,12 @@ jungle emr ls
 
 ```
 jungle emr ssh -k /path/to/key.pem -i j-xxxxxxx
+```
+
+### AutoScaling
+
+```
+jungle asg ls
 ```
 
 
