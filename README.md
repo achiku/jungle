@@ -23,6 +23,7 @@ awscli is by far the most comprehensive CLI tool manipulating various AWS servic
 pip install jungle
 ```
 
+
 ## Usage
 
 
@@ -132,6 +133,15 @@ jungle emr ssh -k /path/to/key.pem -i j-xxxxxxx
 
 ```
 jungle asg ls
+```
+
+
+## Autocompletion (currently only supports bash)
+
+Execuging the following command prints bash autocompletion script. Copy and past or redirect to your favorite file (e.g. `/etc/bash_completion.d/jungle`, `~/.bashrc`). This is a function of [click](http://click.pocoo.org/5/), which internally used by `jungle`.
+
+```
+$ _JUNGLE_COMPLETE=source jungle
 ```
 
 
