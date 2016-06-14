@@ -155,12 +155,12 @@ def ssh(instance_id, instance_name, username, key_file, port, gateway_instance_i
         click.echo(
             "One of --instance-id/-i or --instance-name/-n"
             " has to be specified.", err=True)
-        sys.exit(2)
+        sys.exit(1)
     elif instance_id is not None and instance_name is not None:
         click.echo(
             "Both --instance-id/-i and --instance-name/-n "
             "can't to be specified at the same time.", err=True)
-        sys.exit(2)
+        sys.exit(1)
     cmd = create_ssh_command(
         instance_id, instance_name, username, key_file, port, gateway_instance_id)
     if not dry_run:

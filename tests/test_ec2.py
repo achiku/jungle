@@ -61,6 +61,37 @@ def test_ec2_ls_formatted(runner, ec2, opt, arg, expected_server_names):
     assert sorted(expected_server_names) == _get_sorted_server_names_from_output(result.output, separator=' ')
 
 
+@pytest.mark.parametrize('args, expected_output, exit_code', [
+    (
+        ['-u', 'ubuntu'],
+        "One of --instance-id/-i or --instance-name/-n has to be specified.\n", 1),
+    (
+        ['-i', 'xxx', '-n', 'xxx'],
+        "Both --instance-id/-i and --instance-name/-n can't to be specified at the same time.\n", 1),
+])
+def test_ec2_ssh_arg_error(runner, ec2, args, expected_output, exit_code):
+    """jungle ec2 ssh test"""
+    command = ['ec2', 'ssh', '--dry-run']
+    command.extend(args)
+    result = runner.invoke(cli.cli, command)
+    assert result.output == expected_output
+    assert result.exit_code == exit_code
+
+
+@pytest.mark.parametrize('args, expected_output, exit_code', [
+    (['-u', 'ubuntu'], "ssh ubuntu@{ip} -p 22\n", 0),
+    (['-u', 'ec2user', '-p', '8022'], "ssh ec2user@{ip} -p 8022\n", 0),
+])
+def test_ec2_ssh(runner, ec2, args, expected_output, exit_code):
+    """jungle ec2 ssh test"""
+    command = ['ec2', 'ssh', '--dry-run']
+    command.extend(args)
+    command.extend(['-i', ec2['ssh_target_server'].id])
+    result = runner.invoke(cli.cli, command)
+    assert result.output == expected_output.format(ip=ec2['ssh_target_server'].public_ip_address)
+    assert result.exit_code == exit_code
+
+
 @pytest.mark.parametrize('tags, key, expected', [
     ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'Name', 'server01'),
     ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'env', 'prod'),
