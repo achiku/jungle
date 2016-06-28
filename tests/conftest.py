@@ -80,7 +80,7 @@ def elb():
     lbs = []
     for i in range(2):
         lb = client.create_load_balancer(
-            LoadBalancerName='loadbalancer-01',
+            LoadBalancerName='loadbalancer-{:02d}'.format(i),
             Listeners=[
                 {
                     'Protocol': 'http',
