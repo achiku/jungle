@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+
 import boto3
 import pytest
 from click.testing import CliRunner
@@ -45,22 +47,22 @@ def asg():
 @pytest.yield_fixture(scope='function')
 def emr():
     """EMR mock service"""
-    # TODO: implement fixture after moto is ready
+    # FIXME: moto can only support us-east-1 when EMR module is used
     # https://github.com/spulec/moto/pull/456
-    boto3.set_stream_logger()
+    # https://github.com/spulec/moto/pull/375
     mock = mock_emr()
     mock.start()
-
+    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
     client = boto3.client('emr')
     clusters = []
     for i in range(2):
         cluster = client.run_job_flow(
-            Name='cluster{}'.format(i),
+            Name='cluster-{:02d}'.format(i),
             Instances={
                 'MasterInstanceType': 'c3.xlarge',
                 'SlaveInstanceType': 'c3.xlarge',
                 'InstanceCount': 3,
-                'Placement': {'AvailabilityZone': 'ap-northeast-1a'},
+                'Placement': {'AvailabilityZone': 'us-east-1'},
                 'KeepJobFlowAliveWhenNoSteps': True,
             },
             VisibleToAllUsers=True,
@@ -68,6 +70,7 @@ def emr():
         clusters.append(cluster)
     yield {'clusters': clusters}
     mock.stop()
+    os.environ['AWS_DEFAULT_REGION'] = ''
 
 
 @pytest.yield_fixture(scope='function')
