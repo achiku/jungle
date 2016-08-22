@@ -94,7 +94,11 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
     if instance_id is not None:
         try:
             instance = ec2.Instance(instance_id)
-            hostname = instance.public_ip_address
+            if instance.public_ip_address is not None:
+                hostname = instance.public_ip_address
+            else:
+                click.echo("Public IP address not set.  Attempting to use the private IP address.")
+                hostname = instance.private_ip_address
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
