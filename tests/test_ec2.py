@@ -92,6 +92,22 @@ def test_ec2_ssh(runner, ec2, args, expected_output, exit_code):
     assert result.exit_code == exit_code
 
 
+@pytest.mark.parametrize('args, instance_id, expected_output, exit_code', [
+    (['-u', 'ubuntu'], 'i-mal',
+     ("Invalid instance ID {instance_id} (An error occurred "
+      "(InvalidInstanceID.NotFound) when calling the DescribeInstances operation: "
+      "The instance ID '{instance_id}' does not exist)\n"), 2),
+])
+def test_ec2_ssh_unknown_id(runner, ec2, args, instance_id, expected_output, exit_code):
+    """jungle ec2 ssh test"""
+    command = ['ec2', 'ssh', '--dry-run']
+    command.extend(args)
+    command.extend(['-i', instance_id])
+    result = runner.invoke(cli.cli, command)
+    assert result.output == expected_output.format(instance_id=instance_id)
+    assert result.exit_code == exit_code
+
+
 @pytest.mark.parametrize('tags, key, expected', [
     ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'Name', 'server01'),
     ([{'Key': 'Name', 'Value': 'server01'}, {'Key': 'env', 'Value': 'prod'}], 'env', 'prod'),
