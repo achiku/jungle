@@ -87,7 +87,8 @@ def down(instance_id):
         sys.exit(2)
 
 
-def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id, gateway_username):
+def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh_options,
+                       gateway_instance_id, gateway_username):
     """Create SSH Login command string"""
     ec2 = boto3.resource('ec2')
     if instance_id is not None:
@@ -157,7 +158,8 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
 @click.option('--gateway-username', '-x', default=None, help='Gateway username')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')
-def ssh(instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id, gateway_username, dry_run):
+def ssh(instance_id, instance_name, username, key_file, port, ssh_options,
+        gateway_instance_id, gateway_username, dry_run):
     """SSH to EC2 instance"""
     if instance_id is None and instance_name is None:
         click.echo(
