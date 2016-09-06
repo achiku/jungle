@@ -87,7 +87,7 @@ def down(instance_id):
         sys.exit(2)
 
 
-def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id):
+def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id, gateway_username):
     """Create SSH Login command string"""
     ec2 = boto3.resource('ec2')
     if instance_id is not None:
@@ -130,6 +130,8 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
         key_file_option = ''
     else:
         key_file_option = ' -i {0}'.format(key_file)
+    if gateway_username is None:
+        gateway_username = 'ubuntu'
     if ssh_options is None:
         ssh_options = ''
     else:
@@ -138,8 +140,8 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
-        cmd = 'ssh -tt ubuntu@{0}{1} -p {2}{3} ssh {4}@{5}'.format(
-            gateway_public_ip, key_file_option, port, ssh_options, username, hostname)
+        cmd = 'ssh -tt {0}@{1}{2} -p {3}{4} ssh {5}@{6}'.format(
+            gateway_username, gateway_public_ip, key_file_option, port, ssh_options, username, hostname)
     else:
         cmd = 'ssh {0}@{1}{2} -p {3}{4}'.format(username, hostname, key_file_option, port, ssh_options)
     return cmd
@@ -153,8 +155,9 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
 @click.option('--port', '-p', help='SSH port', default=22)
 @click.option('--ssh-options', '-s', help='Additional SSH options', default=None)
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
+@click.option('--gateway-username', '-x', default=None, help='Gateway username')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')
-def ssh(instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id, dry_run):
+def ssh(instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id, gateway_username, dry_run):
     """SSH to EC2 instance"""
     if instance_id is None and instance_name is None:
         click.echo(
@@ -167,7 +170,8 @@ def ssh(instance_id, instance_name, username, key_file, port, ssh_options, gatew
             "can't to be specified at the same time.", err=True)
         sys.exit(1)
     cmd = create_ssh_command(
-        instance_id, instance_name, username, key_file, port, ssh_options, gateway_instance_id)
+        instance_id, instance_name, username, key_file, port, ssh_options,
+        gateway_instance_id, gateway_username)
     if not dry_run:
         subprocess.call(cmd, shell=True)
     else:

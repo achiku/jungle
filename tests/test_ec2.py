@@ -121,29 +121,43 @@ def test_get_tag_value(tags, key, expected):
     assert get_tag_value(tags, key) == expected
 
 
-@pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, port, ssh_options, use_gateway, expected', [
-    ('ssh_server', False, 'ubuntu', 'key.pem', 22, "-o StrictHostKeyChecking=no", False,
-        'ssh ubuntu@{} -i key.pem -p 22 -o StrictHostKeyChecking=no'),
-    ('ssh_server', False, 'ubuntu', None, 22, None, False, 'ssh ubuntu@{} -p 22'),
-    (None, True, 'ubuntu', 'key.pem', 22, None, False, 'ssh ubuntu@{} -i key.pem -p 22'),
-    ('ssh_server', False, 'ubuntu', 'key.pem', 22, None, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
-    ('ssh_server', False, 'ubuntu', None, 22, None, True, 'ssh -tt ubuntu@{} -p 22 ssh ubuntu@{}'),
-    (None, True, 'ubuntu', 'key.pem', 22, None, True, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
-    (None, True, 'ubuntu', None, 22, "-A", True, 'ssh -tt ubuntu@{} -p 22 -A ssh ubuntu@{}'),
-])
+@pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, port, ssh_options, '
+                         'use_gateway, gateway_username, expected', [
+                             ('ssh_server', False, 'ubuntu', 'key.pem', 22, "-o StrictHostKeyChecking=no", False,
+                              None, 'ssh ubuntu@{} -i key.pem -p 22 -o StrictHostKeyChecking=no'),
+                             ('ssh_server', False, 'ubuntu', None, 22,
+                              None, False, None, 'ssh ubuntu@{} -p 22'),
+                             (None, True, 'ubuntu', 'key.pem', 22, None,
+                              False, None, 'ssh ubuntu@{} -i key.pem -p 22'),
+                             ('ssh_server', False, 'ubuntu', 'key.pem', 22, None, True,
+                              None, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+                             ('ssh_server', False, 'ubuntu', None, 22, None, True,
+                              None, 'ssh -tt ubuntu@{} -p 22 ssh ubuntu@{}'),
+                             (None, True, 'ubuntu', 'key.pem', 22, None, True, None,
+                              'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+                             (None, True, 'ubuntu', None, 22, "-A", True, 'ec2-user',
+                              'ssh -tt ec2-user@{} -p 22 -A ssh ubuntu@{}'),
+                             (None, True, 'ec2-user', None, 22, "-A", True, 'core',
+                              'ssh -tt core@{} -p 22 -A ssh ec2-user@{}'),
+                         ])
 def test_create_ssh_command(
-        mocker, ec2, inst_name, use_inst_id, username, keyfile, port, ssh_options, use_gateway, expected):
+        mocker, ec2, inst_name, use_inst_id, username, keyfile, port, ssh_options,
+        use_gateway, gateway_username, expected):
     """create_ssh_command test"""
     from jungle.ec2 import create_ssh_command
     mocker.patch('click.prompt', new=lambda msg, type, default: 0)
-    ssh_server_instance_id = ec2['ssh_target_server'].id if use_inst_id else None
-    gateway_server_instance_id = ec2['gateway_target_server'].id if use_gateway else None
+    ssh_server_instance_id = ec2[
+        'ssh_target_server'].id if use_inst_id else None
+    gateway_server_instance_id = ec2[
+        'gateway_target_server'].id if use_gateway else None
     ssh_command = create_ssh_command(
-        ssh_server_instance_id, inst_name, username, keyfile, port, ssh_options, gateway_server_instance_id)
+        ssh_server_instance_id, inst_name, username, keyfile, port, ssh_options,
+        gateway_server_instance_id, gateway_username)
     if use_gateway:
         expected_output = expected.format(
             ec2['gateway_target_server'].public_ip_address,
             ec2['ssh_target_server'].private_ip_address)
     else:
-        expected_output = expected.format(ec2['ssh_target_server'].public_ip_address)
+        expected_output = expected.format(
+            ec2['ssh_target_server'].public_ip_address)
     assert ssh_command == expected_output
