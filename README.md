@@ -97,6 +97,12 @@ SSH login to instance specified by Tag Name using auto ssh key discovery
 jungle ec2 ssh -n blog-web-server-01
 ```
 
+SSH login to instance gateway instance, specifying username for each instance,
+while disabling known_hosts prompt.
+
+```
+jungle ec2 ssh -i i-xxxxxx -u ec2-user -k /path/to/key.pem -s "-o UserKnownHostsFile=/dev/null" -g i-xxxxxx -x core
+```
 
 ### ELB
 
