@@ -22,6 +22,14 @@ def format_output(instances, flag):
     return out
 
 
+def _get_instance_ip_address(instance):
+    if instance.public_ip_address is not None:
+        return instance.public_ip_address
+    else:
+        click.echo("Public IP address not set.  Attempting to use the private IP address.")
+        return instance.private_ip_address
+
+
 def _get_max_name_len(instances):
     """get max length of Tag:Name"""
     # FIXME: ec2.instanceCollection doesn't have __len__
@@ -94,11 +102,7 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
     if instance_id is not None:
         try:
             instance = ec2.Instance(instance_id)
-            if instance.public_ip_address is not None:
-                hostname = instance.public_ip_address
-            else:
-                click.echo("Public IP address not set.  Attempting to use the private IP address.")
-                hostname = instance.private_ip_address
+            hostname = _get_instance_ip_address(instance)
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
@@ -122,11 +126,7 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
                 sys.exit(2)
             click.echo("{0} is selected.".format(selected_idx))
             instance = target_instances[selected_idx]
-            if instance.public_ip_address is not None:
-                hostname = instance.public_ip_address
-            else:
-                click.echo("Public IP address not set.  Attempting to use the private IP address.")
-                hostname = instance.private_ip_address
+            hostname = _get_instance_ip_address(instance)
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
