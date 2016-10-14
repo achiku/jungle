@@ -6,6 +6,7 @@ import boto3
 import botocore
 import click
 
+
 def format_output(instances, flag):
     """return formatted string per instance"""
     out = []

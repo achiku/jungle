@@ -4,7 +4,7 @@ import os
 import boto3
 import pytest
 from click.testing import CliRunner
-from moto import mock_autoscaling, mock_ec2, mock_elb, mock_emr
+from moto import mock_autoscaling, mock_ec2, mock_elb, mock_emr, mock_rds
 
 
 @pytest.fixture
@@ -132,4 +132,44 @@ def ec2():
         gateway_target_server=gateway_server[0],
     )
 
+    mock.stop()
+
+
+@pytest.yield_fixture(scope='function')
+def rds():
+    """RDS mock service"""
+    mock = mock_rds()
+    mock.start()
+
+    rds = boto3.client('rds')
+
+    instances = rds.create_db_instance(
+        DBName='db-xxxx',
+        DBInstanceIdentifier='id1ewbkjqprhw13',
+        AllocatedStorage=64,
+        DBInstanceClass='db.t2.medium',
+        MasterUsername='toor',
+        MasterUserPassword='password',
+        AvailabilityZone='us-east-1a',
+        Port=3306,
+        MultiAZ=True,
+        Engine='mysql',
+        EngineVersion='5.7.11',
+        AutoMinorVersionUpgrade=False,
+        LicenseModel='general-public-license',
+        Iops=256,
+        PubliclyAccessible=True,
+        Tags=[
+            {
+                'Key': 'Name',
+                'Value': 'id1ewbkjqprhw13'
+            },
+        ],
+        DBClusterIdentifier='id1ewbkjqprhw13',
+        StorageType='standard',
+        StorageEncrypted=False,
+        CopyTagsToSnapshot=True,
+    )
+
+    yield {'instances': instances}
     mock.stop()
