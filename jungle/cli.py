@@ -10,7 +10,7 @@ class JungleCLI(click.MultiCommand):
 
     def list_commands(self, ctx):
         """return available modules"""
-        return ['ec2', 'elb', 'emr', 'asg']
+        return ['ec2', 'elb', 'emr', 'asg', 'rds']
 
     def get_command(self, ctx, name):
         """get command"""
