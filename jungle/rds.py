@@ -7,52 +7,38 @@ import botocore
 import click
 
 def format_output(instances, flag):
-    """return formatted string for instance"""
+    """return formatted string per instance"""
     out = []
-    line_format = '{0}\t{1}'
+    line_format = '{0}\t{1}\t{2}\t{3}'
     name_len = _get_max_name_len(instances) + 3
     if flag:
-        line_format = '{0:<' + str(name_len) + '}{1:<16}{2:<21}{3:<16}{4:<16}'
+        line_format = '{0:<' + str(name_len+5) + '}{1:<16}{2:<65}{3:<16}'
 
     for i in instances:
         tag_name = i['DBInstanceIdentifier']
-        out.append(line_format.format(i['DBInstanceIdentifier'], i['Endpoint']['Address']))
+        endpoint = "%s:%s" % (i['Endpoint']['Address'], i['Endpoint']['Port'])
+        out.append(line_format.format(i['DBInstanceIdentifier'], i['DBInstanceStatus'], endpoint, i['Engine']))
     return out
 
 
 def _get_max_name_len(instances):
     """get max length of Tag:Name"""
-
-
     for i in instances:
         return max([len(i['DBInstanceIdentifier']) for i in instances])
     return 0
 
-
-def get_tag_value(x, key):
-    """Get a value from tag"""
-    if x is None:
-        return ''
-    result = [y['Value'] for y in x if y['Key'] == key]
-    if result:
-        return result[0]
-    return ''
 
 @click.group()
 def cli():
     """RDS CLI group"""
     pass
 
+
 @cli.command(help='List RDS instances')
-@click.argument('name', default='*')
 @click.option('--list-formatted', '-l', is_flag=True)
-def ls(name, list_formatted):
-    """List EC2 instances"""
+def ls(list_formatted):
+    """List RDS instances"""
     rds = boto3.client('rds')
-    if name == '*':
-        instances = rds.describe_db_instances()
-    else:
-        condition = {'Name': 'tag:Name', 'Values': [name]}
-        instances = rds.describe_db_instances(Filters=[condition])
+    instances = rds.describe_db_instances()
     out = format_output(instances['DBInstances'], list_formatted)
     click.echo('\n'.join(out))
