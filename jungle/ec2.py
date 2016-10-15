@@ -160,10 +160,10 @@ def create_ssh_command(session, instance_id, instance_name, username, key_file, 
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
-        cmd = 'ssh -tt {0} {1}{2} -p {3}{4} ssh {5} {6}'.format(
+        cmd = 'ssh -tt{0} {1}{2} -p {3}{4} ssh{5} {6}'.format(
             gateway_username_option, gateway_public_ip, key_file_option, port, ssh_options, username_option, hostname)
     else:
-        cmd = 'ssh {0} {1}{2} -p {3}{4}'.format(username_option, hostname, key_file_option, port, ssh_options)
+        cmd = 'ssh{0} {1}{2} -p {3}{4}'.format(username_option, hostname, key_file_option, port, ssh_options)
     return cmd
 
 
@@ -171,7 +171,7 @@ def build_option_username(username):
     if username is None:
         return ''
     else:
-        return '-l {0}'.format(username)
+        return ' -l {0}'.format(username)
 
 
 @cli.command(help='SSH login to EC2 instance')

@@ -133,8 +133,8 @@ def test_ec2_ssh_selection_index_error(runner, ec2, args, input, expected_output
 
 
 @pytest.mark.parametrize('args, expected_output, exit_code', [
-    (['-u', 'ubuntu'], "ssh ubuntu@{ip} -p 22\n", 0),
-    (['-u', 'ec2user', '-p', '8022'], "ssh ec2user@{ip} -p 8022\n", 0),
+    (['-u', 'ubuntu'], "ssh -l ubuntu {ip} -p 22\n", 0),
+    (['-u', 'ec2user', '-p', '8022'], "ssh -l ec2user {ip} -p 8022\n", 0),
 ])
 def test_ec2_ssh(runner, ec2, args, expected_output, exit_code):
     """jungle ec2 ssh test"""
@@ -147,7 +147,7 @@ def test_ec2_ssh(runner, ec2, args, expected_output, exit_code):
 
 
 @pytest.mark.parametrize('args, expected_output, exit_code', [
-    (['-u', 'ubuntu', '-n', 'server01'], "ssh ubuntu@{ip} -p 22\n", 0),
+    (['-u', 'ubuntu', '-n', 'server01'], "ssh -l ubuntu {ip} -p 22\n", 0),
 ])
 def test_ec2_ssh_multiple_tag_search(runner, ec2, args, expected_output, exit_code):
     """jungle ec2 ssh multiple nodes"""
@@ -191,7 +191,7 @@ def test_ec2_ssh_multiple_choice(runner, ec2, args, expected_output, exit_code):
     menu = menu + "0 is selected.\n"
 
     # Add the ssh cmd
-    menu = menu + "ssh {user}@{ip} -p 22\n".format(user=args[1], ip=instances_list[0].public_ip_address)
+    menu = menu + "ssh -l {user} {ip} -p 22\n".format(user=args[1], ip=instances_list[0].public_ip_address)
     menu = menu.expandtabs()
 
     assert _normalize_tabs(result.output) == _normalize_tabs(menu)
@@ -230,25 +230,25 @@ def test_get_tag_value(tags, key, expected):
 @pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, port, ssh_options, use_private_ip, '
                          'use_gateway, gateway_username, profile_name, expected', [
                              ('ssh_server', False, 'ubuntu', 'key.pem', 22, "-o StrictHostKeyChecking=no", False, False,
-                              None, None, 'ssh ubuntu@{} -i key.pem -p 22 -o StrictHostKeyChecking=no'),
+                              None, None, 'ssh -l ubuntu {} -i key.pem -p 22 -o StrictHostKeyChecking=no'),
                              ('ssh_server', False, 'ubuntu', None, 22, None, False, False, None, None,
-                              'ssh ubuntu@{} -p 22'),
+                              'ssh -l ubuntu {} -p 22'),
                              ('ssh_server', False, 'ubuntu', None, 22, None, True, False, None, None,
-                              'ssh ubuntu@{} -p 22'),
+                              'ssh -l ubuntu {} -p 22'),
                              (None, True, 'ubuntu', 'key.pem', 22, None, False, False, None, None,
-                              'ssh ubuntu@{} -i key.pem -p 22'),
+                              'ssh -l ubuntu {} -i key.pem -p 22'),
                              ('ssh_server', False, 'ubuntu', 'key.pem', 22, None, False, True, None, None,
-                              'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+                              'ssh -tt {} -i key.pem -p 22 ssh -l ubuntu {}'),
                              ('ssh_server', False, 'ubuntu', None, 22, None, False, True, None, None,
-                              'ssh -tt ubuntu@{} -p 22 ssh ubuntu@{}'),
+                              'ssh -tt {} -p 22 ssh -l ubuntu {}'),
                              (None, True, 'ubuntu', 'key.pem', 22, None, False, True, None, None,
-                              'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+                              'ssh -tt {} -i key.pem -p 22 ssh -l ubuntu {}'),
                              (None, True, 'ubuntu', None, 22, "-A", False, True, 'ec2-user', None,
-                              'ssh -tt ec2-user@{} -p 22 -A ssh ubuntu@{}'),
+                              'ssh -tt -l ec2-user {} -p 22 -A ssh -l ubuntu {}'),
                              (None, True, 'ec2-user', None, 22, "-A", False, True, 'core', None,
-                              'ssh -tt core@{} -p 22 -A ssh ec2-user@{}'),
+                              'ssh -tt -l core {} -p 22 -A ssh -l ec2-user {}'),
                              (None, True, 'ec2-user', None, 22, "-A", False, True, 'core',
-                              'my_profile', 'ssh -tt core@{} -p 22 -A ssh ec2-user@{}'),
+                              'my_profile', 'ssh -tt -l core {} -p 22 -A ssh -l ec2-user {}'),
                          ])
 def test_create_ssh_command(
         mocker, ec2, inst_name, use_inst_id, username, keyfile, port, ssh_options, use_private_ip,
