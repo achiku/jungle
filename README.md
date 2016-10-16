@@ -141,6 +141,12 @@ jungle emr ssh -k /path/to/key.pem -i j-xxxxxxx
 jungle asg ls
 ```
 
+### RDS
+
+```
+jungle rds ls
+```
+
 
 ## Autocompletion (currently only supports bash)
 
