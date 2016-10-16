@@ -13,6 +13,21 @@ def _get_sorted_server_names_from_output(output, separator='\t'):
     return sorted(server_names)
 
 
+def test_get_instance_ip_address(runner, ec2):
+    from jungle.ec2 import _get_instance_ip_address
+
+    public_server = ec2['server']
+    ip = _get_instance_ip_address(public_server)
+    assert ip == public_server.public_ip_address
+
+    vpc = ec2['ec2'].create_vpc(CidrBlock='10.0.0.0/24')
+    subnet = vpc.create_subnet(CidrBlock='10.0.0.0/25')
+    vpc_server = ec2['ec2'].create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1, SubnetId=subnet.id)[0]
+
+    ip = _get_instance_ip_address(vpc_server)
+    assert ip == vpc_server.private_ip_address
+
+
 def test_ec2_up(runner, ec2):
     """jungle ec2 up test"""
     result = runner.invoke(cli.cli, ['ec2', 'up', '-i', ec2['server'].id])
