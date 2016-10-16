@@ -17,7 +17,7 @@ def format_output(instances, flag):
 
     for i in instances:
         tag_name = i['DBInstanceIdentifier']
-        endpoint = "%s:%s" % (i['Endpoint']['Address'], i['Endpoint']['Port'])
+        endpoint = "{0}:{1}".format(i['Endpoint']['Address'], i['Endpoint']['Port'])
         out.append(line_format.format(i['DBInstanceIdentifier'], i['DBInstanceStatus'], endpoint, i['Engine']))
     return out
 
