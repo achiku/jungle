@@ -107,6 +107,24 @@ def test_ec2_ssh(runner, ec2, args, expected_output, exit_code):
     assert result.exit_code == exit_code
 
 
+@pytest.mark.parametrize('args, expected_output, exit_code', [
+    (['-u', 'ubuntu', '-n', 'server01'], "ssh ubuntu@{ip} -p 22\n", 0),
+])
+def test_ec2_ssh_multiple_tag_search(runner, ec2, args, expected_output, exit_code):
+    """jungle ec2 ssh multiple nodes"""
+    command = ['ec2', 'ssh', '--dry-run']
+    command.extend(args)
+    result = runner.invoke(cli.cli, command)
+
+    conditions = [
+        {'Name': 'tag:Name', 'Values': [args[-1]]},
+        {'Name': 'instance-state-name', 'Values': ['running']},
+    ]
+    instance = list(ec2['ec2'].instances.filter(Filters=conditions).all())[0]
+    assert result.output == expected_output.format(ip=instance.public_ip_address)
+    assert result.exit_code == exit_code
+
+
 @pytest.mark.parametrize('args, instance_id, expected_output, exit_code', [
     (['-u', 'ubuntu'], 'i-mal',
      ("Invalid instance ID {instance_id} (An error occurred "
