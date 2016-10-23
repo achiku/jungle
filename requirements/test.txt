@@ -9,4 +9,4 @@ pytest-cov==2.2.1
 pytest-mock==1.1
 pytest-isort==0.1.0
 pytest-pep8==1.0.6
-moto==0.4.25
+moto==0.4.27
