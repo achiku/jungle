@@ -123,7 +123,7 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
                 for idx, i in enumerate(instances):
                     tag_name = get_tag_value(i.tags, 'Name')
                     click.echo('[{0}]: {1}\t{2}\t{3}\t{4}\t{5}'.format(
-                        idx, i.id, i.private_ip_address, i.state['Name'], tag_name, i.key_name))
+                        idx, i.id, i.public_ip_address, i.state['Name'], tag_name, i.key_name))
                 selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
                 # TODO: add validation for if selected_idx exceeds length of target_instances
                 if len(target_instances) - 1 < selected_idx or selected_idx < 0:
