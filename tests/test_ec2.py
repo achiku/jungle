@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import boto3
 import pytest
 
 from jungle import cli
@@ -166,6 +167,7 @@ def test_create_ssh_command(
     gateway_server_instance_id = ec2[
         'gateway_target_server'].id if use_gateway else None
     ssh_command = create_ssh_command(
+        boto3,
         ssh_server_instance_id, inst_name, username, keyfile, port, ssh_options,
         gateway_server_instance_id, gateway_username)
     if use_gateway:

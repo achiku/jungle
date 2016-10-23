@@ -2,9 +2,10 @@
 import subprocess
 import sys
 
-import boto3
 import botocore
 import click
+
+from jungle.common import create_session
 
 
 def format_output(instances, flag):
@@ -57,9 +58,11 @@ def cli():
 @cli.command(help='List EC2 instances')
 @click.argument('name', default='*')
 @click.option('--list-formatted', '-l', is_flag=True)
-def ls(name, list_formatted):
+@click.option('--profile-name', '-P')
+def ls(name, list_formatted, profile_name):
     """List EC2 instances"""
-    ec2 = boto3.resource('ec2')
+    session = create_session(profile_name)
+    ec2 = session.resource('ec2')
     if name == '*':
         instances = ec2.instances.filter()
     else:
@@ -71,9 +74,11 @@ def ls(name, list_formatted):
 
 @cli.command(help='Start EC2 instance')
 @click.option('--instance-id', '-i', required=True, help='EC2 instance id')
-def up(instance_id):
+@click.option('--profile-name', '-P')
+def up(instance_id, profile_name):
     """Start EC2 instance"""
-    ec2 = boto3.resource('ec2')
+    session = create_session(profile_name)
+    ec2 = session.resource('ec2')
     try:
         instance = ec2.Instance(instance_id)
         instance.start()
@@ -84,9 +89,11 @@ def up(instance_id):
 
 @cli.command(help='Stop EC2 instance')
 @click.option('--instance-id', '-i', required=True, help='EC2 instance id')
-def down(instance_id):
+@click.option('--profile-name', '-P')
+def down(instance_id, profile_name):
     """Stop EC2 instance"""
-    ec2 = boto3.resource('ec2')
+    session = create_session(profile_name)
+    ec2 = session.resource('ec2')
     try:
         instance = ec2.Instance(instance_id)
         instance.stop()
@@ -95,10 +102,10 @@ def down(instance_id):
         sys.exit(2)
 
 
-def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh_options,
+def create_ssh_command(session, instance_id, instance_name, username, key_file, port, ssh_options,
                        gateway_instance_id, gateway_username):
     """Create SSH Login command string"""
-    ec2 = boto3.resource('ec2')
+    ec2 = session.resource('ec2')
     if instance_id is not None:
         try:
             instance = ec2.Instance(instance_id)
@@ -162,9 +169,12 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
 @click.option('--gateway-username', '-x', default=None, help='Gateway username')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')
+@click.option('--profile-name', '-P')
 def ssh(instance_id, instance_name, username, key_file, port, ssh_options,
-        gateway_instance_id, gateway_username, dry_run):
+        gateway_instance_id, gateway_username, dry_run, profile_name):
     """SSH to EC2 instance"""
+    session = create_session(profile_name)
+
     if instance_id is None and instance_name is None:
         click.echo(
             "One of --instance-id/-i or --instance-name/-n"
@@ -176,6 +186,7 @@ def ssh(instance_id, instance_name, username, key_file, port, ssh_options,
             "can't to be specified at the same time.", err=True)
         sys.exit(1)
     cmd = create_ssh_command(
+        session,
         instance_id, instance_name, username, key_file, port, ssh_options,
         gateway_instance_id, gateway_username)
     if not dry_run:

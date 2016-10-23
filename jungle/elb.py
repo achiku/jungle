@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import boto3
 import click
+
 from botocore.exceptions import ClientError
+from jungle.common import create_session
 
 
 @click.group()
@@ -13,9 +14,12 @@ def cli():
 @cli.command(help='List ELB instances')
 @click.argument('name', default='*')
 @click.option('--list-instances', '-l', 'list_instances', is_flag=True, help='List attached EC2 instances')
-def ls(name, list_instances):
+@click.option('--profile-name', '-P')
+def ls(name, list_instances, profile_name):
     """List ELB instances"""
-    client = boto3.client('elb')
+    session = create_session(profile_name)
+
+    client = session.client('elb')
     inst = {'LoadBalancerDescriptions': []}
     if name == '*':
         inst = client.describe_load_balancers()

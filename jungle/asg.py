@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import boto3
 import click
+from jungle.ec2 import create_session
 
 
 def format_output(groups, flag):
@@ -28,9 +28,11 @@ def cli():
 @cli.command(help='List AutoScaling groups')
 @click.argument('name', default='*')
 @click.option('--list-formatted', '-l', is_flag=True)
-def ls(name, list_formatted):
+@click.option('--profile-name', '-P')
+def ls(name, list_formatted, profile_name):
     """List AutoScaling groups"""
-    client = boto3.client('autoscaling')
+    session = create_session(profile_name)
+    client = session.client('autoscaling')
     if name == "*":
         groups = client.describe_auto_scaling_groups()
     else:
