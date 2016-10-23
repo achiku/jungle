@@ -4,6 +4,28 @@ import pytest
 from jungle import cli
 
 
+def _normalize_tabs(string):
+    lines = string.split("\n")
+    retval = ""
+    for line in lines:
+        words = line.split()
+        for idx, word in enumerate(words):
+            if word == '' or word == ' ':
+                del words[idx]
+        retval = retval + " ".join(words) + "\n"
+    return retval
+
+
+def _get_tag_value(x, key):
+    """Get a value from tag"""
+    if x is None:
+        return ''
+    result = [y['Value'] for y in x if y['Key'] == key]
+    if result:
+        return result[0]
+    return ''
+
+
 def _get_sorted_server_names_from_output(output, separator='\t'):
     """return server name list from output"""
     server_names = [
@@ -122,6 +144,40 @@ def test_ec2_ssh_multiple_tag_search(runner, ec2, args, expected_output, exit_co
     ]
     instance = list(ec2['ec2'].instances.filter(Filters=conditions).all())[0]
     assert result.output == expected_output.format(ip=instance.public_ip_address)
+    assert result.exit_code == exit_code
+
+
+@pytest.mark.parametrize('args, expected_output, exit_code', [
+    (['-u', 'ubuntu', '-n', 'server*'], 'expected_output', 0),
+])
+def test_ec2_ssh_multiple_choice(runner, ec2, args, expected_output, exit_code):
+    """jungle ec2 ssh multiple nodes"""
+    command = ['ec2', 'ssh', '--dry-run']
+    command.extend(args)
+    result = runner.invoke(cli.cli, command)
+
+    conditions = [
+        {'Name': 'tag:Name', 'Values': [args[-1]]},
+        {'Name': 'instance-state-name', 'Values': ['running']},
+    ]
+    instances = ec2['ec2'].instances.filter(Filters=conditions)
+    instances_list = list(instances.all())
+
+    menu = ""
+    for idx, i in enumerate(instances):
+        tag_name = _get_tag_value(i.tags, 'Name')
+        menu = menu + "[{0}]: {1}\t{2}\t{3}\t{4}\t{5}\n".format(
+            idx, i.id, i.public_ip_address, i.state['Name'], tag_name, i.key_name)
+    menu = menu + "Please enter a valid number [0]:\n"
+
+    # The tests seem to hit return by default
+    menu = menu + "0 is selected.\n"
+
+    # Add the ssh cmd
+    menu = menu + "ssh {user}@{ip} -p 22\n".format(user=args[1], ip=instances_list[0].public_ip_address)
+    menu = menu.expandtabs()
+
+    assert _normalize_tabs(result.output) == _normalize_tabs(menu)
     assert result.exit_code == exit_code
 
 
