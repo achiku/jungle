@@ -115,6 +115,18 @@ def test_ec2_ssh_arg_error(runner, ec2, args, expected_output, exit_code):
     assert result.exit_code == exit_code
 
 
+@pytest.mark.parametrize('args, input, expected_output, exit_code', [
+    (['-n', 'server*'], "3", "selected number [3] is invalid\n", 2),
+])
+def test_ec2_ssh_selection_index_error(runner, ec2, args, input, expected_output, exit_code):
+    """jungle ec2 ssh test"""
+    command = ['ec2', 'ssh', '--dry-run']
+    command.extend(args)
+    result = runner.invoke(cli.cli, command, input=input)
+    assert expected_output in result.output
+    assert result.exit_code == exit_code
+
+
 @pytest.mark.parametrize('args, expected_output, exit_code', [
     (['-u', 'ubuntu'], "ssh ubuntu@{ip} -p 22\n", 0),
     (['-u', 'ec2user', '-p', '8022'], "ssh ec2user@{ip} -p 8022\n", 0),
