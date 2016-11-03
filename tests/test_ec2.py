@@ -42,6 +42,9 @@ def test_get_instance_ip_address(runner, ec2):
     ip = _get_instance_ip_address(public_server)
     assert ip == public_server.public_ip_address
 
+    ip = _get_instance_ip_address(public_server, use_private_ip=True)
+    assert ip == public_server.private_ip_address
+
     vpc = ec2['ec2'].create_vpc(CidrBlock='10.0.0.0/24')
     subnet = vpc.create_subnet(CidrBlock='10.0.0.0/25')
     vpc_server = ec2['ec2'].create_instances(ImageId='ami-xxxxx', MinCount=1, MaxCount=1, SubnetId=subnet.id)[0]
@@ -222,27 +225,27 @@ def test_get_tag_value(tags, key, expected):
     assert get_tag_value(tags, key) == expected
 
 
-@pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, port, ssh_options, '
+@pytest.mark.parametrize('inst_name, use_inst_id, username, keyfile, port, ssh_options, use_private_ip, '
                          'use_gateway, gateway_username, expected', [
-                             ('ssh_server', False, 'ubuntu', 'key.pem', 22, "-o StrictHostKeyChecking=no", False,
+                             ('ssh_server', False, 'ubuntu', 'key.pem', 22, "-o StrictHostKeyChecking=no", False, False,
                               None, 'ssh ubuntu@{} -i key.pem -p 22 -o StrictHostKeyChecking=no'),
-                             ('ssh_server', False, 'ubuntu', None, 22,
-                              None, False, None, 'ssh ubuntu@{} -p 22'),
-                             (None, True, 'ubuntu', 'key.pem', 22, None,
-                              False, None, 'ssh ubuntu@{} -i key.pem -p 22'),
-                             ('ssh_server', False, 'ubuntu', 'key.pem', 22, None, True,
-                              None, 'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
-                             ('ssh_server', False, 'ubuntu', None, 22, None, True,
-                              None, 'ssh -tt ubuntu@{} -p 22 ssh ubuntu@{}'),
-                             (None, True, 'ubuntu', 'key.pem', 22, None, True, None,
+                             ('ssh_server', False, 'ubuntu', None, 22, None, False, False, None, 'ssh ubuntu@{} -p 22'),
+                             ('ssh_server', False, 'ubuntu', None, 22, None, True, False, None, 'ssh ubuntu@{} -p 22'),
+                             (None, True, 'ubuntu', 'key.pem', 22, None, False, False, None,
+                              'ssh ubuntu@{} -i key.pem -p 22'),
+                             ('ssh_server', False, 'ubuntu', 'key.pem', 22, None, False, True, None,
                               'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
-                             (None, True, 'ubuntu', None, 22, "-A", True, 'ec2-user',
+                             ('ssh_server', False, 'ubuntu', None, 22, None, False, True, None,
+                              'ssh -tt ubuntu@{} -p 22 ssh ubuntu@{}'),
+                             (None, True, 'ubuntu', 'key.pem', 22, None, False, True, None,
+                              'ssh -tt ubuntu@{} -i key.pem -p 22 ssh ubuntu@{}'),
+                             (None, True, 'ubuntu', None, 22, "-A", False, True, 'ec2-user',
                               'ssh -tt ec2-user@{} -p 22 -A ssh ubuntu@{}'),
-                             (None, True, 'ec2-user', None, 22, "-A", True, 'core',
+                             (None, True, 'ec2-user', None, 22, "-A", False, True, 'core',
                               'ssh -tt core@{} -p 22 -A ssh ec2-user@{}'),
                          ])
 def test_create_ssh_command(
-        mocker, ec2, inst_name, use_inst_id, username, keyfile, port, ssh_options,
+        mocker, ec2, inst_name, use_inst_id, username, keyfile, port, ssh_options, use_private_ip,
         use_gateway, gateway_username, expected):
     """create_ssh_command test"""
     from jungle.ec2 import create_ssh_command
@@ -252,11 +255,14 @@ def test_create_ssh_command(
     gateway_server_instance_id = ec2[
         'gateway_target_server'].id if use_gateway else None
     ssh_command = create_ssh_command(
-        ssh_server_instance_id, inst_name, username, keyfile, port, ssh_options,
+        ssh_server_instance_id, inst_name, username, keyfile, port, ssh_options, use_private_ip,
         gateway_server_instance_id, gateway_username)
     if use_gateway:
         expected_output = expected.format(
             ec2['gateway_target_server'].public_ip_address,
+            ec2['ssh_target_server'].private_ip_address)
+    elif use_private_ip:
+        expected_output = expected.format(
             ec2['ssh_target_server'].private_ip_address)
     else:
         expected_output = expected.format(
