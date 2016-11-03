@@ -116,17 +116,21 @@ def create_ssh_command(instance_id, instance_name, username, key_file, port, ssh
             target_instances = []
             for idx, i in enumerate(instances):
                 target_instances.append(i)
-                tag_name = get_tag_value(i.tags, 'Name')
-                click.echo('[{0}]: {1}\t{2}\t{3}\t{4}\t{5}'.format(
-                    idx, i.id, i.private_ip_address, i.state['Name'], tag_name, i.key_name))
-            selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
-            # TODO: add validation for if selected_idx exceeds length of target_instances
-            if len(target_instances) - 1 < selected_idx or selected_idx < 0:
-                click.echo("selected number [{0}] is invalid".format(selected_idx), err=True)
-                sys.exit(2)
-            click.echo("{0} is selected.".format(selected_idx))
-            instance = target_instances[selected_idx]
-            hostname = _get_instance_ip_address(instance)
+            if len(target_instances) == 1:
+                instance = target_instances[0]
+                hostname = _get_instance_ip_address(instance)
+            else:
+                for idx, i in enumerate(instances):
+                    tag_name = get_tag_value(i.tags, 'Name')
+                    click.echo('[{0}]: {1}\t{2}\t{3}\t{4}\t{5}'.format(
+                        idx, i.id, i.public_ip_address, i.state['Name'], tag_name, i.key_name))
+                selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
+                if len(target_instances) - 1 < selected_idx or selected_idx < 0:
+                    click.echo("selected number [{0}] is invalid".format(selected_idx), err=True)
+                    sys.exit(2)
+                click.echo("{0} is selected.".format(selected_idx))
+                instance = target_instances[selected_idx]
+                hostname = _get_instance_ip_address(instance)
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
