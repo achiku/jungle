@@ -23,11 +23,13 @@ def format_output(instances, flag):
     return out
 
 
-def _get_instance_ip_address(instance):
-    if instance.public_ip_address is not None:
+def _get_instance_ip_address(instance, use_private_ip=False):
+    if use_private_ip:
+        return instance.private_ip_address
+    elif instance.public_ip_address is not None:
         return instance.public_ip_address
     else:
-        click.echo("Public IP address not set.  Attempting to use the private IP address.")
+        click.echo("Public IP address not set. Attempting to use the private IP address.")
         return instance.private_ip_address
 
 
@@ -103,13 +105,13 @@ def down(instance_id, profile_name):
 
 
 def create_ssh_command(session, instance_id, instance_name, username, key_file, port, ssh_options,
-                       gateway_instance_id, gateway_username):
+                       use_private_ip, gateway_instance_id, gateway_username):
     """Create SSH Login command string"""
     ec2 = session.resource('ec2')
     if instance_id is not None:
         try:
             instance = ec2.Instance(instance_id)
-            hostname = _get_instance_ip_address(instance)
+            hostname = _get_instance_ip_address(instance, use_private_ip)
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
@@ -123,17 +125,21 @@ def create_ssh_command(session, instance_id, instance_name, username, key_file, 
             target_instances = []
             for idx, i in enumerate(instances):
                 target_instances.append(i)
-                tag_name = get_tag_value(i.tags, 'Name')
-                click.echo('[{0}]: {1}\t{2}\t{3}\t{4}\t{5}'.format(
-                    idx, i.id, i.private_ip_address, i.state['Name'], tag_name, i.key_name))
-            selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
-            # TODO: add validation for if selected_idx exceeds length of target_instances
-            if len(target_instances) - 1 < selected_idx or selected_idx < 0:
-                click.echo("selected number [{0}] is invalid".format(selected_idx), err=True)
-                sys.exit(2)
-            click.echo("{0} is selected.".format(selected_idx))
-            instance = target_instances[selected_idx]
-            hostname = _get_instance_ip_address(instance)
+            if len(target_instances) == 1:
+                instance = target_instances[0]
+                hostname = _get_instance_ip_address(instance, use_private_ip)
+            else:
+                for idx, i in enumerate(instances):
+                    tag_name = get_tag_value(i.tags, 'Name')
+                    click.echo('[{0}]: {1}\t{2}\t{3}\t{4}\t{5}'.format(
+                        idx, i.id, i.public_ip_address, i.state['Name'], tag_name, i.key_name))
+                selected_idx = click.prompt("Please enter a valid number", type=int, default=0)
+                if len(target_instances) - 1 < selected_idx or selected_idx < 0:
+                    click.echo("selected number [{0}] is invalid".format(selected_idx), err=True)
+                    sys.exit(2)
+                click.echo("{0} is selected.".format(selected_idx))
+                instance = target_instances[selected_idx]
+                hostname = _get_instance_ip_address(instance, use_private_ip)
         except botocore.exceptions.ClientError as e:
             click.echo("Invalid instance ID {0} ({1})".format(instance_id, e), err=True)
             sys.exit(2)
@@ -165,12 +171,13 @@ def create_ssh_command(session, instance_id, instance_name, username, key_file, 
 @click.option('--username', '-u', default='ubuntu', help='Login username')
 @click.option('--key-file', '-k', help='SSH Key file path', type=click.Path())
 @click.option('--port', '-p', help='SSH port', default=22)
+@click.option('--private-ip', '-e', help='Use instance private ip', is_flag=True, default=False)
 @click.option('--ssh-options', '-s', help='Additional SSH options', default=None)
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
 @click.option('--gateway-username', '-x', default=None, help='Gateway username')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')
 @click.option('--profile-name', '-P')
-def ssh(instance_id, instance_name, username, key_file, port, ssh_options,
+def ssh(instance_id, instance_name, username, key_file, port, ssh_options, private_ip,
         gateway_instance_id, gateway_username, dry_run, profile_name):
     """SSH to EC2 instance"""
     session = create_session(profile_name)
@@ -187,7 +194,7 @@ def ssh(instance_id, instance_name, username, key_file, port, ssh_options,
         sys.exit(1)
     cmd = create_ssh_command(
         session,
-        instance_id, instance_name, username, key_file, port, ssh_options,
+        instance_id, instance_name, username, key_file, port, ssh_options, private_ip,
         gateway_instance_id, gateway_username)
     if not dry_run:
         subprocess.call(cmd, shell=True)
