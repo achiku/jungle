@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import boto3
 import pytest
-
 from jungle import cli
-from jungle.common import create_session
+from jungle.session import create_session
 
 
 def _normalize_tabs(string):

@@ -3,8 +3,7 @@ import subprocess
 
 import click
 from botocore.exceptions import ClientError
-
-from jungle.common import create_session
+from jungle.session import create_session
 
 
 @click.group()

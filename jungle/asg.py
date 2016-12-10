@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from jungle.ec2 import create_session
+from jungle.session import create_session
 
 
 def format_output(groups, flag):

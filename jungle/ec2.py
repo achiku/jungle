@@ -4,8 +4,7 @@ import sys
 
 import botocore
 import click
-
-from jungle.common import create_session
+from jungle.session import create_session
 
 
 def format_output(instances, flag):
