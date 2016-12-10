@@ -16,12 +16,6 @@ with open('jungle/__init__.py', 'r') as fd:
 if not version:
     raise RuntimeError('Cannot find version information')
 
-with open(os.path.join(base_dir, 'requirements/common.txt')) as f:
-    requirements = [r.strip() for r in f.readlines()]
-
-with open(os.path.join(base_dir, 'requirements/test.txt')) as f:
-    test_requirements = [r.strip() for r in f.readlines()]
-
 setup(
     name='jungle',
     version=version,
@@ -35,7 +29,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='any',
-    install_requires=requirements,
+    install_requires=[
+        'boto3',
+        'botocore',
+        'click'
+    ],
     entry_points={
         'console_scripts': [
             'jungle = jungle.cli:cli',
@@ -65,5 +63,18 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     test_suite='tests',
-    tests_require=test_requirements
+    tests_require=[
+        'httpretty',
+        'tox',
+        'isort',
+        'flake8',
+        'pep257',
+        'py',
+        'pytest',
+        'pytest-cov',
+        'pytest-mock',
+        'pytest-isort',
+        'pytest-pep8',
+        'moto'
+    ]
 )
