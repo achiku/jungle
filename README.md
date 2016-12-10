@@ -111,6 +111,12 @@ jungle ec2 ssh -n blog-web-server-01 -u ec2-user --dry-run
 ssh xxx.xxx.xxx.xxx@ec2-user
 ```
 
+`--profile-name` specify AWS profile name.
+
+```
+jungle ec2 ssh -n blog-web-server-01 -u ec2-user --profile-name myprofile
+```
+
 ### ELB
 
 Listing all ELB instances
