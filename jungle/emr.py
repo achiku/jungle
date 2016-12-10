@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import subprocess
 
-import boto3
 import click
 from botocore.exceptions import ClientError
+
+from jungle.common import create_session
 
 
 @click.group()
@@ -14,9 +15,11 @@ def cli():
 
 @cli.command(help='List EMR clusters')
 @click.argument('name', default='*')
-def ls(name):
+@click.option('--profile-name', '-P')
+def ls(name, profile_name):
     """List EMR instances"""
-    client = boto3.client('emr')
+    session = create_session(profile_name)
+    client = session.client('emr')
     results = client.list_clusters(
         ClusterStates=['RUNNING', 'STARTING', 'BOOTSTRAPPING', 'WAITING']
     )
@@ -27,9 +30,11 @@ def ls(name):
 @cli.command(help='SSH to EMR master node')
 @click.option('--cluster-id', '-i', required=True, help='EMR cluster id')
 @click.option('--key-file', '-k', required=True, help='SSH Key file path', type=click.Path())
-def ssh(cluster_id, key_file):
+@click.option('--profile-name', '-P')
+def ssh(cluster_id, key_file, profile_name):
     """SSH login to EMR master node"""
-    client = boto3.client('emr')
+    session = create_session(profile_name)
+    client = session.client('emr')
     result = client.describe_cluster(ClusterId=cluster_id)
     target_dns = result['Cluster']['MasterPublicDnsName']
     ssh_options = '-o StrictHostKeyChecking=no -o ServerAliveInterval=10'
@@ -40,9 +45,11 @@ def ssh(cluster_id, key_file):
 
 @cli.command(help='Terminate a EMR cluster')
 @click.option('--cluster-id', '-i', required=True, help='EMR cluster id')
-def rm(cluster_id):
+@click.option('--profile-name', '-P')
+def rm(cluster_id, profile_name):
     """Terminate a EMR cluster"""
-    client = boto3.client('emr')
+    session = create_session(profile_name)
+    client = session.client('emr')
     try:
         result = client.describe_cluster(ClusterId=cluster_id)
         target_dns = result['Cluster']['MasterPublicDnsName']
