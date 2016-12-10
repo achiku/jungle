@@ -58,3 +58,6 @@ target/
 
 # direnv
 .envrc
+
+# PyCharm
+.idea/

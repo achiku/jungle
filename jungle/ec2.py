@@ -148,8 +148,10 @@ def create_ssh_command(session, instance_id, instance_name, username, key_file, 
         key_file_option = ''
     else:
         key_file_option = ' -i {0}'.format(key_file)
-    if gateway_username is None:
-        gateway_username = 'ubuntu'
+
+    gateway_username_option = build_option_username(gateway_username)
+    username_option = build_option_username(username)
+
     if ssh_options is None:
         ssh_options = ''
     else:
@@ -158,17 +160,24 @@ def create_ssh_command(session, instance_id, instance_name, username, key_file, 
         gateway_instance = ec2.Instance(gateway_instance_id)
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
-        cmd = 'ssh -tt {0}@{1}{2} -p {3}{4} ssh {5}@{6}'.format(
-            gateway_username, gateway_public_ip, key_file_option, port, ssh_options, username, hostname)
+        cmd = 'ssh -tt{0} {1}{2} -p {3}{4} ssh{5} {6}'.format(
+            gateway_username_option, gateway_public_ip, key_file_option, port, ssh_options, username_option, hostname)
     else:
-        cmd = 'ssh {0}@{1}{2} -p {3}{4}'.format(username, hostname, key_file_option, port, ssh_options)
+        cmd = 'ssh{0} {1}{2} -p {3}{4}'.format(username_option, hostname, key_file_option, port, ssh_options)
     return cmd
+
+
+def build_option_username(username):
+    if username is None:
+        return ''
+    else:
+        return ' -l {0}'.format(username)
 
 
 @cli.command(help='SSH login to EC2 instance')
 @click.option('--instance-id', '-i', default=None, help='EC2 instance id')
 @click.option('--instance-name', '-n', default=None, help='EC2 instance Name Tag')
-@click.option('--username', '-u', default='ubuntu', help='Login username')
+@click.option('--username', '-u', default=None, help='Login username')
 @click.option('--key-file', '-k', help='SSH Key file path', type=click.Path())
 @click.option('--port', '-p', help='SSH port', default=22)
 @click.option('--private-ip', '-e', help='Use instance private ip', is_flag=True, default=False)
