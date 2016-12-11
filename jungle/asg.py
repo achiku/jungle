@@ -20,18 +20,22 @@ def format_output(groups, flag):
 
 
 @click.group()
-def cli():
+@click.option('--profile-name', '-P', default=None, help='AWS profile name')
+@click.pass_context
+def cli(ctx, profile_name):
     """AutoScaling CLI group"""
-    pass
+    ctx.obj = {}
+    ctx.obj['AWS_PROFILE_NAME'] = profile_name
 
 
 @cli.command(help='List AutoScaling groups')
 @click.argument('name', default='*')
 @click.option('--list-formatted', '-l', is_flag=True)
-@click.option('--profile-name', '-P')
-def ls(name, list_formatted, profile_name):
+@click.pass_context
+def ls(ctx, name, list_formatted):
     """List AutoScaling groups"""
-    session = create_session(profile_name)
+    session = create_session(ctx.obj['AWS_PROFILE_NAME'])
+
     client = session.client('autoscaling')
     if name == "*":
         groups = client.describe_auto_scaling_groups()

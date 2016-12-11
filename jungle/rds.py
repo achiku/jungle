@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import boto3
 import click
 from jungle.session import create_session
 
@@ -27,17 +26,20 @@ def _get_max_name_len(instances):
 
 
 @click.group()
-def cli():
+@click.option('--profile-name', '-P', default=None, help='AWS profile name')
+@click.pass_context
+def cli(ctx, profile_name):
     """RDS CLI group"""
-    pass
+    ctx.obj = {'AWS_PROFILE_NAME': profile_name}
 
 
 @cli.command(help='List RDS instances')
 @click.option('--list-formatted', '-l', is_flag=True)
-@click.option('--profile-name', '-P')
-def ls(list_formatted, profile_name):
+@click.pass_context
+def ls(ctx, list_formatted):
     """List RDS instances"""
-    session = create_session(profile_name)
+    session = create_session(ctx.obj['AWS_PROFILE_NAME'])
+
     rds = session.client('rds')
     instances = rds.describe_db_instances()
     out = format_output(instances['DBInstances'], list_formatted)

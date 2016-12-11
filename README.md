@@ -111,10 +111,10 @@ jungle ec2 ssh -n blog-web-server-01 -u ec2-user --dry-run
 ssh xxx.xxx.xxx.xxx@ec2-user
 ```
 
-`--profile-name` specify AWS profile name.
+`-P/--profile-name` specify AWS profile name.
 
 ```
-jungle ec2 ssh -n blog-web-server-01 -u ec2-user --profile-name myprofile
+jungle ec2 -P myprofile ssh -n blog-web-server-01 -u ec2-user
 ```
 
 ### ELB
@@ -146,6 +146,10 @@ jungle emr ls
 
 ```
 jungle emr ssh -k /path/to/key.pem -i j-xxxxxxx
+```
+
+```
+jungle emr rm -i j-xxxxxxx
 ```
 
 ### AutoScaling
