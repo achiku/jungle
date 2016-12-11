@@ -51,18 +51,20 @@ def get_tag_value(x, key):
 
 
 @click.group()
-def cli():
+@click.option('--profile-name', '-P', default=None, help='AWS profile name')
+@click.pass_context
+def cli(ctx, profile_name):
     """EC2 CLI group"""
-    pass
+    ctx.obj = {'AWS_PROFILE_NAME': profile_name}
 
 
 @cli.command(help='List EC2 instances')
 @click.argument('name', default='*')
 @click.option('--list-formatted', '-l', is_flag=True)
-@click.option('--profile-name', '-P')
-def ls(name, list_formatted, profile_name):
+@click.pass_context
+def ls(ctx, name, list_formatted):
     """List EC2 instances"""
-    session = create_session(profile_name)
+    session = create_session(ctx.obj['AWS_PROFILE_NAME'])
     ec2 = session.resource('ec2')
     if name == '*':
         instances = ec2.instances.filter()
@@ -75,10 +77,10 @@ def ls(name, list_formatted, profile_name):
 
 @cli.command(help='Start EC2 instance')
 @click.option('--instance-id', '-i', required=True, help='EC2 instance id')
-@click.option('--profile-name', '-P')
-def up(instance_id, profile_name):
+@click.pass_context
+def up(ctx, instance_id):
     """Start EC2 instance"""
-    session = create_session(profile_name)
+    session = create_session(ctx.obj['AWS_PROFILE_NAME'])
     ec2 = session.resource('ec2')
     try:
         instance = ec2.Instance(instance_id)
@@ -90,10 +92,10 @@ def up(instance_id, profile_name):
 
 @cli.command(help='Stop EC2 instance')
 @click.option('--instance-id', '-i', required=True, help='EC2 instance id')
-@click.option('--profile-name', '-P')
-def down(instance_id, profile_name):
+@click.pass_context
+def down(ctx, instance_id):
     """Stop EC2 instance"""
-    session = create_session(profile_name)
+    session = create_session(ctx.obj['AWS_PROFILE_NAME'])
     ec2 = session.resource('ec2')
     try:
         instance = ec2.Instance(instance_id)
@@ -160,7 +162,8 @@ def create_ssh_command(session, instance_id, instance_name, username, key_file, 
         gateway_public_ip = gateway_instance.public_ip_address
         hostname = instance.private_ip_address
         cmd = 'ssh -tt{0} {1}{2} -p {3}{4} ssh{5} {6}'.format(
-            gateway_username_option, gateway_public_ip, key_file_option, port, ssh_options, username_option, hostname)
+            gateway_username_option, gateway_public_ip, key_file_option,
+            port, ssh_options, username_option, hostname)
     else:
         cmd = 'ssh{0} {1}{2} -p {3}{4}'.format(username_option, hostname, key_file_option, port, ssh_options)
     return cmd
@@ -184,11 +187,11 @@ def build_option_username(username):
 @click.option('--gateway-instance-id', '-g', default=None, help='Gateway instance id')
 @click.option('--gateway-username', '-x', default=None, help='Gateway username')
 @click.option('--dry-run', is_flag=True, default=False, help='Print SSH Login command and exist')
-@click.option('--profile-name', '-P')
-def ssh(instance_id, instance_name, username, key_file, port, ssh_options, private_ip,
-        gateway_instance_id, gateway_username, dry_run, profile_name):
+@click.pass_context
+def ssh(ctx, instance_id, instance_name, username, key_file, port, ssh_options, private_ip,
+        gateway_instance_id, gateway_username, dry_run):
     """SSH to EC2 instance"""
-    session = create_session(profile_name)
+    session = create_session(ctx.obj['AWS_PROFILE_NAME'])
 
     if instance_id is None and instance_name is None:
         click.echo(
@@ -201,8 +204,7 @@ def ssh(instance_id, instance_name, username, key_file, port, ssh_options, priva
             "can't to be specified at the same time.", err=True)
         sys.exit(1)
     cmd = create_ssh_command(
-        session,
-        instance_id, instance_name, username, key_file, port, ssh_options, private_ip,
+        session, instance_id, instance_name, username, key_file, port, ssh_options, private_ip,
         gateway_instance_id, gateway_username)
     if not dry_run:
         subprocess.call(cmd, shell=True)

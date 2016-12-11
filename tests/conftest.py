@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-
 import boto3
 import pytest
 from click.testing import CliRunner
@@ -52,7 +50,6 @@ def emr():
     # https://github.com/spulec/moto/pull/375
     mock = mock_emr()
     mock.start()
-    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
     client = boto3.client('emr')
     clusters = []
     for i in range(2):
@@ -70,7 +67,6 @@ def emr():
         clusters.append(cluster)
     yield {'clusters': clusters}
     mock.stop()
-    os.environ['AWS_DEFAULT_REGION'] = ''
 
 
 @pytest.yield_fixture(scope='function')

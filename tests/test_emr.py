@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
+import pytest
+from jungle import cli
 
 
-def test_emr():
-    # TODO: implement fixture after moto is ready
-    # https://github.com/spulec/moto/pull/456
-    """mock test"""
-    assert True
+@pytest.mark.parametrize('emr_name', [
+    ('*'),
+    ('cluster-*'),
+    ('cluster-02'),
+    ('dummy-cluster'),
+])
+def test_emr_ls(runner, emr, emr_name):
+    """jungle rds ls test"""
+    result = runner.invoke(cli.cli, ['emr', 'ls', emr_name])
+    assert result.exit_code == 0
