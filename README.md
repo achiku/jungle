@@ -3,7 +3,6 @@
 [![PyPI version](https://img.shields.io/pypi/v/jungle.svg)](https://pypi.python.org/pypi/jungle)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/achiku/jungle/master/LICENSE)
 [![Build Status](https://travis-ci.org/achiku/jungle.svg)](https://travis-ci.org/achiku/jungle)
-[![Requirements Status](https://requires.io/github/achiku/jungle/requirements.svg?branch=master)](https://requires.io/github/achiku/jungle/requirements/?branch=master)
 [![codecov.io](http://codecov.io/github/achiku/jungle/coverage.svg?branch=master)](http://codecov.io/github/achiku/jungle?branch=master)
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/deacbd1de84b474d97493cb5fbae967e/badge.svg)](https://www.quantifiedcode.com/app/project/deacbd1de84b474d97493cb5fbae967e)
 
