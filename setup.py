@@ -16,6 +16,15 @@ with open('jungle/__init__.py', 'r') as fd:
 if not version:
     raise RuntimeError('Cannot find version information')
 
+
+def read_file(filename):
+    filepath = os.path.join(base_dir, filename)
+    if os.path.exists(filepath):
+        return open(filepath).read()
+    else:
+        return ''
+
+
 setup(
     name='jungle',
     version=version,
@@ -24,7 +33,8 @@ setup(
     author='Akira Chiku',
     author_email='akira.chiku@gmail.com',
     description='AWS operations by cli should be simpler',
-    long_description=__doc__,
+    long_description=read_file('README.md'),
+    long_description_content_type="text/markdown",
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     zip_safe=False,
